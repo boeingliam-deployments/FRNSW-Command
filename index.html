@@ -1,632 +1,241 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FRNSW Command & Control Tracker</title>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --red: #cc2020;
-    --red-bright: #ff3333;
-    --green: #27ae60;
-    --amber: #e67e22;
-    --blue: #2980b9;
-    --gold: #f1c40f;
-    --bg: #0d0f12;
-    --bg2: #13171c;
-    --bg3: #1a1f26;
-    --border: #252c38;
-    --text: #dce6f0;
-    --text-dim: #6a7a8a;
-    --mono: 'Share Tech Mono', monospace;
-    --head: 'Rajdhani', sans-serif;
-    --body: 'Barlow', sans-serif;
-  }
+let store = JSON.parse(localStorage.getItem('frnsw_v3') || '{"activeId": null, "incidents": []}');
+const STATUSES = ['responding', 'scene', 'returning', 'available'];
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { 
-    background: var(--bg); 
-    color: var(--text); 
-    font-family: var(--body); 
-    min-height: 100vh; 
-    overflow: hidden; 
-    display: flex; 
-    flex-direction: row; 
-  }
+// HELPERS
+function save() { localStorage.setItem('frnsw_v3', JSON.stringify(store)); }
+function getActive() { return store.incidents.find(i => i.id === store.activeId); }
 
-  /* SIDEBAR */
-  .sidebar {
-    width: 55px;
-    background: var(--bg2);
-    border-right: 2px solid var(--red);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-top: 15px;
-    z-index: 200;
-  }
+// QRF & NOTEPAD (Draggable logic remains same)
+function toggleQRF() {
+  const hud = document.getElementById('qrfHud');
+  hud.style.display = (hud.style.display === 'flex') ? 'none' : 'flex';
+}
+function toggleNotepad() {
+  const hud = document.getElementById('notepadHud');
+  hud.style.display = (hud.style.display === 'flex') ? 'none' : 'flex';
+}
+makeDraggable(document.getElementById('qrfHud'), document.getElementById('qrfHeader'));
+makeDraggable(document.getElementById('notepadHud'), document.getElementById('notepadHeader'));
+document.getElementById('notepadText').value = localStorage.getItem('frnsw_notepad') || '';
 
-  .btn-qrf {
-    background: var(--red);
-    color: white;
-    border: none;
-    width: 40px;
-    height: 40px;
-    border-radius: 4px;
-    font-family: var(--head);
-    font-weight: 700;
-    font-size: 0.75rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    box-shadow: 0 0 10px rgba(204, 32, 32, 0.3);
-  }
-  .btn-qrf:hover { background: var(--red-bright); transform: scale(1.05); }
+function makeDraggable(el, handle) {
+  let dragging = false, ox = 0, oy = 0;
+  handle.addEventListener('mousedown', e => {
+    dragging = true;
+    ox = el.offsetLeft - e.clientX;
+    oy = el.offsetTop - e.clientY;
+  });
+  document.addEventListener('mouseup', () => dragging = false);
+  document.addEventListener('mousemove', e => {
+    if (dragging) { el.style.left = (e.clientX + ox) + 'px'; el.style.top = (e.clientY + oy) + 'px'; }
+  });
+}
 
-  /* MAIN WRAPPER */
-  .app-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
+// INCIDENT CORE LOGIC
+function createNewIncident() {
+  const name = prompt("Enter Incident Identifier (e.g. P25-12345):");
+  if (!name) return;
+  const newInc = { 
+    id: Date.now(), 
+    name: name.toUpperCase(), 
+    units: [], 
+    logs: [{ts: new Date().toLocaleTimeString(), msg: `Incident ${name.toUpperCase()} Created`}], 
+    status: 'active' 
+  };
+  store.incidents.push(newInc);
+  store.activeId = newInc.id;
+  save(); 
+  render();
+}
 
-  header {
-    background: var(--bg2);
-    border-bottom: 3px solid var(--red);
-    padding: 0 1.5rem;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    z-index: 100;
-  }
+function switchIncident(id) {
+  store.activeId = id;
+  save(); 
+  render();
+}
 
-  .hdr-left { display: flex; align-items: center; gap: 1.5rem; }
-  .frnsw-badge { 
-    background: var(--red); 
-    color: #fff; 
-    font-family: var(--head); 
-    font-weight: 700; 
-    padding: 4px 12px; 
-    clip-path: polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%); 
-  }
+function deleteIncidentById(id) {
+  const inc = store.incidents.find(i => i.id === id);
+  if (!inc) return;
+  if (!confirm(`Delete incident ${inc.name}?`)) return;
   
-  .incident-manager { 
-    display: flex; 
-    align-items: center; 
-    gap: 10px; 
-    background: var(--bg3); 
-    padding: 5px 15px; 
-    border-radius: 4px; 
-    border: 1px solid var(--border); 
+  store.incidents = store.incidents.filter(i => i.id !== id);
+  if (store.activeId === id) {
+    store.activeId = store.incidents.length ? store.incidents[0].id : null;
   }
-  .incident-manager select { 
-    background: transparent; border: none; color: var(--amber); 
-    font-family: var(--mono); font-size: 1rem; outline: none; cursor: pointer; 
-  }
+  save(); 
+  render();
+}
 
-  .btn-ui { border: none; padding: 4px 10px; border-radius: 3px; cursor: pointer; font-family: var(--head); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
-  .btn-new { background: var(--green); color: white; }
-  .btn-edit { background: var(--blue); color: white; }
+function openEditModal() {
+  const inc = getActive();
+  if (!inc) return alert("No active incident to manage.");
+  document.getElementById('editName').value = inc.name;
+  document.getElementById('editStatus').value = inc.status || 'active';
+  document.getElementById('editModal').style.display = 'flex';
+}
 
-  .stats-strip { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--bg2); border-bottom: 1px solid var(--border); }
-  .stat { padding: 0.5rem 1.5rem; border-right: 1px solid var(--border); display: flex; align-items: center; gap: 1rem; }
-  .stat-num { font-family: var(--mono); font-size: 1.5rem; color: var(--text); }
-  .stat-label { font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); }
+function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
 
-  .toolbar { display: flex; align-items: flex-end; gap: 0.8rem; padding: 0.8rem 1.5rem; background: var(--bg2); border-bottom: 1px solid var(--border); }
-  .tf { display: flex; flex-direction: column; gap: 3px; }
-  .tf label { font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; }
-  .tf input, .tf select { background: var(--bg3); border: 1px solid var(--border); color: var(--text); font-family: var(--mono); padding: 6px; outline: none; border-radius: 2px; }
-  .btn-add { background: var(--red); color: #fff; border: none; font-family: var(--head); font-weight: 700; padding: 8px 15px; cursor: pointer; text-transform: uppercase; }
-
-  .main-content { flex: 1; overflow-y: auto; padding: 1rem 1.5rem; padding-bottom: 180px; position: relative; }
-  table { width: 100%; border-collapse: collapse; }
-  th { text-align: left; font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; padding: 10px; border-bottom: 1px solid var(--border); }
-  td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-
-  .command-row { border-left: 4px solid var(--gold); background: rgba(241, 196, 15, 0.05); }
-  .cmd-badge { color: var(--gold); font-weight: bold; font-size: 0.7rem; border: 1px solid var(--gold); padding: 1px 4px; border-radius: 3px; margin-right: 5px; }
-
-  .sbtn { background: var(--bg3); border: 1px solid var(--border); color: var(--text-dim); padding: 4px 8px; cursor: pointer; font-size: 0.65rem; border-radius: 2px; }
-  .sbtn.active { border-color: var(--color); color: var(--color); font-weight: bold; background: rgba(255,255,255,0.05); }
-  .btn-cmd { background: transparent; border: 1px solid var(--border); color: var(--text-dim); padding: 4px 8px; cursor: pointer; border-radius: 2px; font-size: 0.65rem; }
-  .btn-cmd.is-cmd { border-color: var(--gold); color: var(--gold); }
-
-  .log { position: fixed; bottom: 0; right: 0; left: 55px; height: 150px; background: var(--bg2); border-top: 2px solid var(--red); padding: 10px 20px; overflow-y: auto; font-family: var(--mono); font-size: 0.75rem; z-index: 50; }
-  .log-entry { margin-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,0.02); }
-  .log-ts { color: var(--amber); margin-right: 10px; }
-
-  /* QRF POPUP (HUD) */
-  .qrf-hud {
-    position: fixed; top: 80px; left: 70px;
-    width: 290px; background: var(--bg2);
-    border: 1px solid var(--red); border-radius: 4px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.9);
-    z-index: 1000; display: none; flex-direction: column;
-  }
-  .qrf-header {
-    background: var(--red); padding: 8px 12px;
-    display: flex; justify-content: space-between; align-items: center;
-    cursor: move;
-  }
-  .qrf-header span { font-family: var(--head); font-weight: 700; font-size: 0.85rem; letter-spacing: 1px; }
-  .qrf-body { padding: 15px; font-family: var(--mono); font-size: 0.8rem; line-height: 1.5; background: var(--bg); }
-  .qrf-section { margin-bottom: 15px; }
-  .qrf-section-title { color: var(--amber); border-bottom: 1px solid var(--border); margin-bottom: 6px; padding-bottom: 2px; text-transform: uppercase; font-size: 0.7rem; font-weight: bold; }
+function saveEdit() {
+  const inc = getActive();
+  const newName = document.getElementById('editName').value.toUpperCase();
+  const newStatus = document.getElementById('editStatus').value;
+  if (!newName) return;
   
-  .code-row { display: flex; justify-content: space-between; margin-bottom: 3px; }
-  .c-red { color: var(--red-bright); font-weight: bold; }
-  .c-white { color: #fff; }
-  .c-blue { color: #3498db; }
-  .c-green { color: var(--green); }
-  .c-yellow { color: var(--gold); }
+  inc.name = newName; 
+  inc.status = newStatus;
+  log(`Update: Name to ${newName}, Status: ${newStatus.toUpperCase()}`);
+  save(); 
+  render(); 
+  closeEditModal();
+}
 
-  /* MODALS */
-  .modal-wrap { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; }
-  .modal-box { background: var(--bg2); border: 2px solid var(--border); padding: 2rem; border-radius: 4px; width: 420px; }
+// UNIT LOGIC
+function addUnit() {
+  const inc = getActive();
+  if (!inc || inc.status === 'suspended') return;
+  const cs = document.getElementById('inCS').value.toUpperCase();
+  const type = document.getElementById('inType').value || 'Pumper';
+  if (!cs) return;
+  
+  const unit = { 
+    id: Date.now(), 
+    cs: cs, 
+    type: type, 
+    status: 'responding', 
+    location: '', 
+    isCmd: document.getElementById('inIsCmd').value === 'true', 
+    ts: new Date().toLocaleTimeString() 
+  };
+  inc.units.push(unit);
+  log(`${unit.cs} assigned to board`);
+  save(); 
+  render();
+  document.getElementById('inCS').value = ''; 
+  document.getElementById('inCS').focus();
+}
 
-  .suspended-overlay { position: absolute; inset: 0; background: rgba(13, 15, 18, 0.7); display: flex; align-items: center; justify-content: center; z-index: 10; }
-  .suspended-msg { background: var(--amber); color: #000; padding: 15px 30px; font-family: var(--head); font-weight: 700; text-transform: uppercase; border-radius: 2px; }
-  /* INCIDENT TAB STRIP */
-  .inc-tab-strip {
-    display: flex;
-    align-items: stretch;
-    overflow-x: auto;
-    flex: 1;
-    margin: 0 1rem;
-    gap: 2px;
-    height: 60px;
+function setStatus(unitId, status) {
+  const inc = getActive();
+  if (inc.status === 'suspended') return;
+  const unit = inc.units.find(u => u.id === unitId);
+  const oldStatus = unit.status;
+  unit.status = status; 
+  unit.ts = new Date().toLocaleTimeString();
+  log(`${unit.cs} status changed from ${oldStatus.toUpperCase()} to ${status.toUpperCase()}`);
+  save(); 
+  render();
+}
+
+function updateLocation(unitId, val) {
+  const inc = getActive();
+  const unit = inc.units.find(u => u.id === unitId);
+  if(unit) {
+    unit.location = val;
+    save(); // Critical: save on every change
   }
-  .inc-tab-strip::-webkit-scrollbar { height: 3px; }
-  .inc-tab-strip::-webkit-scrollbar-thumb { background: var(--border); }
+}
 
-  .inc-tab {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 0 14px;
-    cursor: pointer;
-    border-bottom: 3px solid transparent;
-    border-top: 3px solid transparent;
-    transition: all 0.15s;
-    white-space: nowrap;
-    flex-shrink: 0;
-    min-width: 120px;
-    position: relative;
-    background: transparent;
-    border-left: 1px solid transparent;
-    border-right: 1px solid transparent;
-  }
-  .inc-tab:hover { background: var(--bg3); }
-  .inc-tab.active { 
-    background: var(--bg3); 
-    border-bottom-color: var(--red); 
-    border-left-color: var(--border);
-    border-right-color: var(--border);
-  }
-  .inc-tab-name { 
-    font-family: var(--mono); font-size: 0.78rem; 
-    color: var(--text-dim); font-weight: bold; 
-    letter-spacing: 1px;
-  }
-  .inc-tab.active .inc-tab-name { color: var(--red-bright); }
-  .inc-tab-meta { 
-    font-size: 0.58rem; color: var(--text-dim); 
-    letter-spacing: 1px; text-transform: uppercase; 
-    margin-top: 2px; display: flex; align-items: center; gap: 5px;
-  }
-  .inc-tab-dot { 
-    width: 5px; height: 5px; border-radius: 50%; 
-    background: var(--green); display: inline-block; flex-shrink:0;
-  }
-  .inc-tab-dot.suspended { background: var(--amber); }
-  .inc-tab-close {
-    position: absolute; top: 6px; right: 5px;
-    background: none; border: none; color: var(--border);
-    cursor: pointer; font-size: 0.7rem; line-height: 1;
-    padding: 2px; transition: color 0.15s;
-  }
-  .inc-tab-close:hover { color: var(--red-bright); }
-  .inc-tab-units {
-    font-family: var(--mono); font-size: 0.6rem;
-    color: var(--text-dim);
-  }
-  .inc-tab.active .inc-tab-units { color: var(--amber); }
+function toggleCommand(unitId) {
+  const inc = getActive();
+  if (inc.status === 'suspended') return;
+  const unit = inc.units.find(u => u.id === unitId);
+  unit.isCmd = !unit.isCmd;
+  log(`${unit.cs} command role toggled ${unit.isCmd ? 'ON' : 'OFF'}`);
+  save(); 
+  render();
+}
 
-  /* NOTEPAD HUD */
-  .notepad-hud {
-    position: fixed; top: 80px; left: 70px;
-    width: 300px; background: var(--bg2);
-    border: 1px solid var(--amber); border-radius: 4px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.9);
-    z-index: 1000; display: none; flex-direction: column;
-  }
-  .notepad-header {
-    background: var(--amber); padding: 8px 12px;
-    display: flex; justify-content: space-between; align-items: center;
-    cursor: move;
-  }
-  .notepad-header span { font-family: var(--head); font-weight: 700; font-size: 0.85rem; letter-spacing: 1px; color: #000; }
-  .notepad-body { 
-    padding: 0; background: var(--bg);
-  }
-  .notepad-body textarea {
-    width: 100%; height: 240px; background: var(--bg);
-    border: none; color: var(--text); font-family: var(--mono);
-    font-size: 0.78rem; line-height: 1.6; padding: 12px 14px;
-    outline: none; resize: none;
-  }
-  .notepad-body textarea::placeholder { color: var(--text-dim); opacity: 0.4; }
-  .notepad-footer-bar {
-    padding: 5px 12px; background: var(--bg2); border-top: 1px solid var(--border);
-    display: flex; justify-content: space-between; align-items: center;
-  }
-  .notepad-footer-bar span { font-size: 0.58rem; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; }
-  .notepad-footer-bar button { background: none; border: none; color: var(--text-dim); font-family: var(--head); font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; }
-  .notepad-footer-bar button:hover { color: var(--red-bright); }
-</style>
-</head>
-<body>
+function removeUnit(unitId) {
+  const inc = getActive();
+  const unit = inc.units.find(u => u.id === unitId);
+  if(!confirm(`Remove ${unit.cs}?`)) return;
+  inc.units = inc.units.filter(u => u.id !== unitId);
+  log(`${unit.cs} released`);
+  save(); 
+  render();
+}
 
-<div class="sidebar">
-  <button class="btn-qrf" onclick="toggleQRF()" title="Quick Reference Codes">QRF</button>
-  <button class="btn-qrf" onclick="toggleNotepad()" title="Notepad" style="margin-top:8px; background:var(--bg3); border:1px solid var(--border); box-shadow:none; font-size:0.65rem;">NOTE</button>
-</div>
+function log(msg) {
+  const inc = getActive();
+  if (!inc) return;
+  inc.logs.unshift({ ts: new Date().toLocaleTimeString(), msg });
+}
 
-<div class="app-container">
-  <header>
-    <div class="hdr-left">
-      <div class="frnsw-badge">FRNSW</div>
-      <button class="btn-ui btn-new" onclick="createNewIncident()" style="padding:5px 14px; font-size:0.72rem;">+ New Incident</button>
-    </div>
-    <div id="incTabStrip" class="inc-tab-strip"></div>
-    <div id="clock" style="font-family: var(--mono); color: var(--amber); font-size: 1.1rem; flex-shrink:0;">00:00:00</div>
-  </header>
+// UI RENDER
+function render() {
+  const inc = getActive();
+  const strip = document.getElementById('incTabStrip');
+  const main = document.getElementById('main-content');
+  const toolbar = document.getElementById('toolbar');
+  const unitTable = document.getElementById('unitTable');
 
-  <div class="stats-strip">
-    <div class="stat"><div class="stat-num" id="stat-responding">0</div><div class="stat-label">Responding</div></div>
-    <div class="stat"><div class="stat-num" id="stat-scene">0</div><div class="stat-label">On Scene</div></div>
-    <div class="stat"><div class="stat-num" id="stat-returning">0</div><div class="stat-label">Returning</div></div>
-    <div class="stat"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total Units</div></div>
-  </div>
-
-  <div class="toolbar" id="toolbar">
-    <div class="tf"><label>Callsign</label><input type="text" id="inCS" placeholder="e.g. ZETLAND 1"></div>
-    <div class="tf"><label>Type</label><input type="text" id="inType" placeholder="Pumper"></div>
-    <div class="tf">
-      <label>Command Role</label>
-      <select id="inIsCmd">
-        <option value="false">Standard Unit</option>
-        <option value="true">IC / Command</option>
-      </select>
-    </div>
-    <button class="btn-add" onclick="addUnit()">Assign Unit</button>
-  </div>
-
-  <div class="main-content" id="main-content">
-    <div id="unit-container">
-      <table>
-        <thead>
-          <tr>
-            <th>Callsign</th>
-            <th>Type</th>
-            <th>Status</th>
-            <th>Sector / Notes</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="unitTable"></tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-<div id="qrfHud" class="qrf-hud">
-  <div class="qrf-header" id="qrfHeader">
-    <span>QRF / CODES</span>
-    <div style="display:flex; gap:10px;">
-      <button onclick="toggleQRFBody()" style="background:none; border:none; color:white; cursor:pointer; font-weight:bold;">_</button>
-      <button onclick="toggleQRF()" style="background:none; border:none; color:white; cursor:pointer; font-weight:bold;">✕</button>
-    </div>
-  </div>
-  <div class="qrf-body" id="qrfBody">
-    <div class="qrf-section">
-      <div class="qrf-section-title">Priority Codes</div>
-      <div class="code-row c-red"><span>RED RED RED</span> <span>Urgent/Emergency</span></div>
-      <div class="code-row c-white"><span>WHITE</span> <span>New Incident</span></div>
-      <div class="code-row c-blue"><span>BLUE</span> <span>Incident Dispatch</span></div>
-      <div class="code-row c-green"><span>GREEN</span> <span>Stop Message</span></div>
-      <div class="code-row c-yellow"><span>YELLOW</span> <span>Non-Inc/Admin</span></div>
-    </div>
-    <div class="qrf-section">
-      <div class="qrf-section-title">Status Codes</div>
-      <div class="code-row"><span>1</span> <span>Responding</span></div>
-      <div class="code-row"><span>2</span> <span>Call Off</span></div>
-      <div class="code-row"><span>3</span> <span>On Scene</span></div>
-      <div class="code-row"><span>4</span> <span>Available</span></div>
-      <div class="code-row"><span>5</span> <span>Returned to Stn</span></div>
-      <div class="code-row"><span>6</span> <span>RFS Area</span></div>
-      <div class="code-row"><span>7</span> <span>Unavailable</span></div>
-    </div>
-  </div>
-</div>
-
-<div id="notepadHud" class="notepad-hud">
-  <div class="notepad-header" id="notepadHeader">
-    <span>📝 NOTEPAD</span>
-    <div style="display:flex; gap:8px;">
-      <button onclick="document.getElementById('notepadBody').style.display = document.getElementById('notepadBody').style.display==='none'?'block':'none'" style="background:none; border:none; color:#000; cursor:pointer; font-weight:bold; font-size:1rem;">_</button>
-      <button onclick="toggleNotepad()" style="background:none; border:none; color:#000; cursor:pointer; font-weight:bold; font-size:1rem;">✕</button>
-    </div>
-  </div>
-  <div class="notepad-body" id="notepadBody">
-    <textarea id="notepadText" placeholder="General notes, reminders, sector comms, anything…" oninput="localStorage.setItem('frnsw_notepad', this.value)"></textarea>
-  </div>
-  <div class="notepad-footer-bar">
-    <span>Auto-saved</span>
-    <button onclick="if(confirm('Clear notepad?')){document.getElementById('notepadText').value='';localStorage.removeItem('frnsw_notepad');}">Clear</button>
-  </div>
-</div>
-
-<div class="modal-wrap" id="editModal">
-  <div class="modal-box">
-    <h3 style="font-family:var(--head); margin-bottom:1.5rem; letter-spacing:2px; border-bottom:1px solid var(--red); padding-bottom:8px;">INCIDENT MANAGEMENT</h3>
-    <div class="tf" style="margin-bottom:1rem;"><label>Incident ID / Name</label><input type="text" id="editName" style="width:100%"></div>
-    <div class="tf" style="margin-bottom:1.5rem;">
-      <label>Operational Status</label>
-      <select id="editStatus" style="width:100%">
-        <option value="active">Active (Operational)</option>
-        <option value="suspended">Suspended (On Hold)</option>
-      </select>
-    </div>
-    <div style="display:flex; flex-direction:column; gap:12px;">
-      <button onclick="saveEdit()" class="btn-add">Apply Changes</button>
-      <div style="display:flex; gap:10px">
-        <button onclick="closeEditModal()" style="flex:1; background:var(--bg3); border:1px solid var(--border); color:var(--text); padding:10px; cursor:pointer; font-family:var(--head);">CANCEL</button>
-        <button onclick="deleteCurrentIncident()" style="flex:1; background:var(--red); border:none; color:white; padding:10px; cursor:pointer; font-family:var(--head); font-weight:bold;">DELETE ALL</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="log" id="log"></div>
-
-<script>
-  let store = JSON.parse(localStorage.getItem('frnsw_v3') || '{"activeId": null, "incidents": []}');
-  const STATUSES = ['responding', 'scene', 'returning', 'available'];
-
-  // QRF TOGGLE
-  // QRF TOGGLE & DRAG
-  function toggleQRF() {
-    const hud = document.getElementById('qrfHud');
-    hud.style.display = (hud.style.display === 'flex') ? 'none' : 'flex';
-  }
-  function toggleQRFBody() {
-    const body = document.getElementById('qrfBody');
-    body.style.display = (body.style.display === 'none') ? 'block' : 'none';
-  }
-  makeDraggable(document.getElementById('qrfHud'), document.getElementById('qrfHeader'));
-
-  // NOTEPAD TOGGLE & DRAG
-  function toggleNotepad() {
-    const hud = document.getElementById('notepadHud');
-    hud.style.display = (hud.style.display === 'flex') ? 'none' : 'flex';
-  }
-  makeDraggable(document.getElementById('notepadHud'), document.getElementById('notepadHeader'));
-  // restore notepad content
-  document.getElementById('notepadText').value = localStorage.getItem('frnsw_notepad') || '';
-
-  function makeDraggable(el, handle) {
-    let dragging = false, ox = 0, oy = 0;
-    handle.addEventListener('mousedown', e => {
-      dragging = true;
-      ox = el.offsetLeft - e.clientX;
-      oy = el.offsetTop - e.clientY;
-    });
-    document.addEventListener('mouseup', () => dragging = false);
-    document.addEventListener('mousemove', e => {
-      if (dragging) { el.style.left = (e.clientX + ox) + 'px'; el.style.top = (e.clientY + oy) + 'px'; }
-    });
+  // Render Tabs
+  if (!store.incidents.length) {
+    strip.innerHTML = '<div style="font-family:var(--head);font-size:0.65rem;color:var(--text-dim);padding:20px;">No incidents.</div>';
+    unitTable.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:80px; color:var(--text-dim);">Ready for dispatch.</td></tr>';
+    ['responding','scene','returning','total'].forEach(s => document.getElementById('stat-'+s).textContent = '0');
+    document.getElementById('log').innerHTML = '';
+    return;
   }
 
-  // STORAGE & HELPERS
-  function save() { localStorage.setItem('frnsw_v3', JSON.stringify(store)); }
-  function getActive() { return store.incidents.find(i => i.id === store.activeId); }
-
-  function createNewIncident() {
-    const name = prompt("Enter Incident Identifier (e.g. P25-12345):");
-    if (!name) return;
-    const newInc = { 
-      id: Date.now(), 
-      name: name.toUpperCase(), 
-      units: [], 
-      logs: [{ts: new Date().toLocaleTimeString(), msg: `Incident ${name.toUpperCase()} Created`}], 
-      status: 'active' 
-    };
-    store.incidents.push(newInc);
-    store.activeId = newInc.id;
-    save(); init();
-  }
-
-  function switchIncident(id) {
-    store.activeId = id;
-    save(); render();
-  }
-
-  function deleteIncidentById(id) {
-    const inc = store.incidents.find(i => i.id === id);
-    if (!inc) return;
-    if (!confirm(`Delete incident ${inc.name} and all unit data? This cannot be undone.`)) return;
-    store.incidents = store.incidents.filter(i => i.id !== id);
-    if (store.activeId === id) store.activeId = store.incidents.length ? store.incidents[0].id : null;
-    save(); init();
-  }
-
-  function renderTabs() {
-    const strip = document.getElementById('incTabStrip');
-    if (!store.incidents.length) {
-      strip.innerHTML = '<div style="font-family:var(--head);font-size:0.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);display:flex;align-items:center;padding:0 8px;">No incidents — click + New Incident</div>';
-      return;
-    }
-    strip.innerHTML = store.incidents.map(i => {
-      const isActive = i.id === store.activeId;
-      const isSusp = i.status === 'suspended';
-      const unitCount = i.units.length;
-      const cmdUnit = i.units.find(u => u.isCmd);
-      return `<div class="inc-tab ${isActive ? 'active' : ''}" onclick="switchIncident(${i.id})">
+  strip.innerHTML = store.incidents.map(i => {
+    const isActive = i.id === store.activeId;
+    return `
+      <div class="inc-tab ${isActive ? 'active' : ''}" onclick="switchIncident(${i.id})">
         <button class="inc-tab-close" onclick="event.stopPropagation(); deleteIncidentById(${i.id})">✕</button>
         <div class="inc-tab-name">${i.name}</div>
         <div class="inc-tab-meta">
-          <span class="inc-tab-dot ${isSusp ? 'suspended' : ''}"></span>
-          <span>${isSusp ? 'SUSPENDED' : 'ACTIVE'}</span>
-          <span class="inc-tab-units">· ${unitCount} unit${unitCount!==1?'s':''}</span>
+          <span class="inc-tab-dot ${i.status === 'suspended' ? 'suspended' : ''}"></span>
+          <span>${i.status.toUpperCase()}</span>
         </div>
-        ${cmdUnit ? `<div style="font-size:0.55rem;color:var(--gold);letter-spacing:1px;margin-top:1px;">IC: ${cmdUnit.cs}</div>` : ''}
       </div>`;
-    }).join('');
+  }).join('');
+
+  if (!inc) return;
+
+  // Update Stats
+  document.getElementById('stat-total').textContent = inc.units.length;
+  ['responding', 'scene', 'returning'].forEach(s => {
+    document.getElementById('stat-'+s).textContent = inc.units.filter(u => u.status === s).length;
+  });
+
+  // Handle Suspended State UI
+  const isSuspended = inc.status === 'suspended';
+  toolbar.style.opacity = isSuspended ? '0.2' : '1';
+  toolbar.style.pointerEvents = isSuspended ? 'none' : 'all';
+  
+  const oldOverlay = main.querySelector('.suspended-overlay');
+  if (oldOverlay) oldOverlay.remove();
+  if (isSuspended) {
+    const overlay = document.createElement('div');
+    overlay.className = 'suspended-overlay';
+    overlay.innerHTML = '<div class="suspended-msg">Operations Paused</div>';
+    main.appendChild(overlay);
   }
 
-  function openEditModal() {
-    const inc = getActive();
-    if (!inc) return;
-    document.getElementById('editName').value = inc.name;
-    document.getElementById('editStatus').value = inc.status || 'active';
-    document.getElementById('editModal').style.display = 'flex';
-  }
+  // Render Units
+  unitTable.innerHTML = inc.units.sort((a,b) => b.isCmd - a.isCmd).map(u => `
+    <tr class="${u.isCmd ? 'command-row' : ''}">
+      <td><div style="font-family:var(--mono); font-weight:bold;">${u.isCmd ? '<span class="cmd-badge">IC</span> ' : ''}${u.cs}</div></td>
+      <td><span style="font-size:0.75rem; color:var(--blue); font-weight:bold;">${u.type}</span></td>
+      <td>
+        <div style="display:flex; gap:4px">
+          ${STATUSES.map(s => `<button class="sbtn ${u.status === s ? 'active' : ''}" style="--color: var(--${s === 'responding' ? 'amber' : s === 'scene' ? 'red-bright' : s === 'returning' ? 'blue' : 'green'})" onclick="setStatus(${u.id}, '${s}')">${s.slice(0,4).toUpperCase()}</button>`).join('')}
+        </div>
+      </td>
+      <td><input class="tf" style="width:100%; background:transparent; border:none; border-bottom:1px solid var(--border);" placeholder="Sector..." value="${u.location}" oninput="updateLocation(${u.id}, this.value)"></td>
+      <td>
+        <button class="btn-cmd ${u.isCmd ? 'is-cmd' : ''}" onclick="toggleCommand(${u.id})">CMD</button>
+        <button class="btn-cmd" style="color:var(--red-bright)" onclick="removeUnit(${u.id})">✕</button>
+      </td>
+    </tr>
+  `).join('');
 
-  function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
+  document.getElementById('log').innerHTML = inc.logs.map(l => `<div class="log-entry"><span class="log-ts">[${l.ts}]</span> ${l.msg}</div>`).join('');
+}
 
-  function saveEdit() {
-    const inc = getActive();
-    const newName = document.getElementById('editName').value.toUpperCase();
-    const newStatus = document.getElementById('editStatus').value;
-    if (!newName) return;
-    log(`Update: Name to ${newName}, Status: ${newStatus.toUpperCase()}`);
-    inc.name = newName; inc.status = newStatus;
-    save(); render(); closeEditModal();
-  }
-
-  function deleteCurrentIncident() {
-    if (!store.activeId) return;
-    deleteIncidentById(store.activeId);
-    closeEditModal();
-  }
-
-  // UNIT LOGIC
-  function addUnit() {
-    const inc = getActive();
-    if (!inc || inc.status === 'suspended') return;
-    const cs = document.getElementById('inCS').value.toUpperCase();
-    if (!cs) return;
-    const unit = { 
-      id: Date.now(), 
-      cs: cs, 
-      type: document.getElementById('inType').value, 
-      status: 'responding', 
-      location: '', 
-      isCmd: document.getElementById('inIsCmd').value === 'true', 
-      ts: new Date().toLocaleTimeString() 
-    };
-    inc.units.push(unit);
-    log(`${unit.cs} assigned to board`);
-    save(); render();
-    document.getElementById('inCS').value = ''; document.getElementById('inCS').focus();
-  }
-
-  function setStatus(unitId, status) {
-    const inc = getActive();
-    if (inc.status === 'suspended') return;
-    const unit = inc.units.find(u => u.id === unitId);
-    const oldStatus = unit.status;
-    unit.status = status; unit.ts = new Date().toLocaleTimeString();
-    log(`${unit.cs} status changed from ${oldStatus.toUpperCase()} to ${status.toUpperCase()}`);
-    save(); render();
-  }
-
-  function toggleCommand(unitId) {
-    const inc = getActive();
-    if (inc.status === 'suspended') return;
-    const unit = inc.units.find(u => u.id === unitId);
-    unit.isCmd = !unit.isCmd;
-    log(`${unit.cs} command role toggled ${unit.isCmd ? 'ON' : 'OFF'}`);
-    save(); render();
-  }
-
-  function removeUnit(unitId) {
-    const inc = getActive();
-    const unit = inc.units.find(u => u.id === unitId);
-    if(!confirm(`Remove ${unit.cs} from incident?`)) return;
-    inc.units = inc.units.filter(u => u.id !== unitId);
-    log(`${unit.cs} released from incident`);
-    save(); render();
-  }
-
-  function log(msg) {
-    const inc = getActive();
-    if (!inc) return;
-    inc.logs.unshift({ ts: new Date().toLocaleTimeString(), msg });
-  }
-
-  // UI RENDER
-  function render() {
-    renderTabs();
-
-    const inc = getActive();
-    const main = document.getElementById('main-content');
-    const toolbar = document.getElementById('toolbar');
-    const container = document.getElementById('unit-container');
-
-    if (!inc) {
-      document.getElementById('unitTable').innerHTML = '<tr><td colspan="5" style="text-align:center; padding:80px; color:var(--text-dim);">No Active Incidents. Click + New Incident to start.</td></tr>';
-      ['responding','scene','returning','total'].forEach(s => document.getElementById('stat-'+s).textContent = '0');
-      document.getElementById('log').innerHTML = '';
-      return;
-    }
-
-    const isSuspended = inc.status === 'suspended';
-    container.classList.toggle('incident-suspended', isSuspended);
-    toolbar.style.opacity = isSuspended ? '0.2' : '1';
-    toolbar.style.pointerEvents = isSuspended ? 'none' : 'all';
-
-    const oldOverlay = main.querySelector('.suspended-overlay');
-    if (oldOverlay) oldOverlay.remove();
-    if (isSuspended) {
-      const overlay = document.createElement('div');
-      overlay.className = 'suspended-overlay';
-      overlay.innerHTML = '<div class="suspended-msg">Operations Paused - Incident Suspended</div>';
-      main.appendChild(overlay);
-    }
-
-    document.getElementById('stat-total').textContent = inc.units.length;
-    ['responding', 'scene', 'returning'].forEach(s => {
-      document.getElementById('stat-'+s).textContent = inc.units.filter(u => u.status === s).length;
-    });
-
-    document.getElementById('unitTable').innerHTML = inc.units.sort((a,b) => b.isCmd - a.isCmd).map(u => `
-      <tr class="${u.isCmd ? 'command-row' : ''}">
-        <td><div style="font-family:var(--mono); font-weight:bold;">${u.isCmd ? '<span class="cmd-badge">COMMAND</span>' : ''}${u.cs}</div></td>
-        <td><span style="font-size:0.75rem; color:var(--blue); font-weight:bold;">${u.type || 'APPLIANCE'}</span></td>
-        <td>
-          <div style="display:flex; gap:4px">
-            ${STATUSES.map(s => `<button class="sbtn ${u.status === s ? 'active' : ''}" style="--color: var(--${s === 'responding' ? 'amber' : s === 'scene' ? 'red-bright' : s === 'returning' ? 'blue' : 'green'})" onclick="setStatus(${u.id}, '${s}')">${s.toUpperCase()}</button>`).join('')}
-          </div>
-        </td>
-        <td><input class="tf" style="width:100%; background:transparent; border:none; border-bottom:1px solid var(--border);" placeholder="Sector/Location" value="${u.location}" onchange="const inc = getActive(); inc.units.find(un=>un.id===${u.id}).location=this.value; save();"></td>
-        <td><button class="btn-cmd ${u.isCmd ? 'is-cmd' : ''}" onclick="toggleCommand(${u.id})">CMD</button> <button class="btn-cmd" style="color:var(--red-bright)" onclick="removeUnit(${u.id})">✕</button></td>
-      </tr>
-    `).join('');
-
-    document.getElementById('log').innerHTML = inc.logs.map(l => `<div class="log-entry"><span class="log-ts">[${l.ts}]</span> ${l.msg}</div>`).join('');
-  }
-
-  function init() { if (store.incidents.length === 0) createNewIncident(); render(); }
-  setInterval(() => { document.getElementById('clock').textContent = new Date().toLocaleTimeString(); }, 1000);
-  init();
-</script>
-</body>
-</html>
+function init() { render(); }
+setInterval(() => { document.getElementById('clock').textContent = new Date().toLocaleTimeString(); }, 1000);
+init();
