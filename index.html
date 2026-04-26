@@ -20,7 +20,7 @@
 
   /* ── SIDEBAR ── */
   .sidebar { width: 55px; background: var(--bg2); border-right: 2px solid var(--red); display: flex; flex-direction: column; align-items: center; padding-top: 15px; gap: 8px; z-index: 200; flex-shrink: 0; }
-  .btn-side { width: 40px; height: 40px; border-radius: 4px; border: none; font-family: var(--head); font-weight: 700; font-size: 0.7rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.1s; }
+  .btn-side { width: 40px; height: 40px; border-radius: 4px; border: none; font-family: var(--head); font-weight: 700; font-size: 0.7rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.12s; }
   .btn-side.red  { background: var(--red); color: white; box-shadow: 0 0 10px rgba(204,32,32,0.3); }
   .btn-side.red:hover { background: var(--red-bright); transform: scale(1.05); }
   .btn-side.dim  { background: var(--bg3); color: var(--text-dim); border: 1px solid var(--border); }
@@ -33,7 +33,7 @@
   /* ── HEADER ── */
   header { background: var(--bg2); border-bottom: 3px solid var(--red); padding: 0 1.2rem; height: 60px; display: flex; align-items: center; justify-content: space-between; z-index: 100; flex-shrink: 0; }
   .hdr-left { display: flex; align-items: center; gap: 1rem; flex-shrink: 0; }
-  .frnsw-badge { background: var(--red); color: #fff; font-family: var(--head); font-weight: 700; padding: 4px 12px; clip-path: polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%); font-size: 0.9rem; letter-spacing: 2px; }
+  .frnsw-badge { background: var(--red); color: #fff; font-family: var(--head); font-weight: 700; padding: 4px 12px; clip-path: polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%); font-size: 0.75rem; letter-spacing: 1px; }
   .btn-ui { border: none; padding: 5px 12px; border-radius: 3px; cursor: pointer; font-family: var(--head); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
   .btn-new  { background: var(--green); color: white; }
   .btn-new:hover { filter: brightness(1.15); }
@@ -42,7 +42,7 @@
   .inc-tab-strip { display: flex; align-items: stretch; overflow-x: auto; flex: 1; margin: 0 0.8rem; height: 60px; }
   .inc-tab-strip::-webkit-scrollbar { height: 3px; }
   .inc-tab-strip::-webkit-scrollbar-thumb { background: var(--border); }
-  .inc-tab { display: flex; flex-direction: column; justify-content: center; padding: 0 14px 0 12px; cursor: pointer; border-bottom: 3px solid transparent; border-top: 3px solid transparent; border-left: 1px solid transparent; border-right: 1px solid transparent; position: relative; white-space: nowrap; }
+  .inc-tab { display: flex; flex-direction: column; justify-content: center; padding: 0 14px 0 12px; cursor: pointer; border-bottom: 3px solid transparent; border-top: 3px solid transparent; border-left: 2px solid transparent; border-right: 2px solid transparent; position: relative; min-width: max-content; white-space: nowrap; transition: background 0.12s; }
   .inc-tab:hover { background: var(--bg3); }
   .inc-tab.active { background: var(--bg3); border-bottom-color: var(--red); border-left-color: var(--border); border-right-color: var(--border); }
   .inc-tab-name { font-family: var(--mono); font-size: 0.75rem; color: var(--text-dim); font-weight: bold; letter-spacing: 1px; }
@@ -82,7 +82,7 @@
   .fleet-badge { font-size: 0.52rem; padding: 1px 5px; border-radius: 2px; font-family: var(--head); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; }
   .fleet-badge.free { background: rgba(39,174,96,0.15); color: var(--green); border: 1px solid rgba(39,174,96,0.3); }
   .fleet-badge.busy { background: rgba(204,32,32,0.15); color: var(--red-bright); border: 1px solid rgba(204,32,32,0.3); }
-  .btn-assign { background: var(--blue); color: #fff; border: none; font-family: var(--head); font-size: 0.6rem; font-weight: 700; padding: 3px 8px; border-radius: 2px; cursor: pointer; text-transform: uppercase; transition: all 0.1s; }
+  .btn-assign { background: var(--blue); color: #fff; border: none; font-family: var(--head); font-size: 0.6rem; font-weight: 700; padding: 3px 8px; border-radius: 2px; cursor: pointer; text-transform: uppercase; }
   .btn-assign:hover { background: #3498db; }
   .btn-assign:disabled { background: var(--border); color: var(--text-dim); cursor: not-allowed; }
   .btn-del-unit { background: none; border: none; color: var(--border); cursor: pointer; font-size: 0.75rem; padding: 2px 4px; transition: color 0.15s; line-height: 1; flex-shrink: 0; }
@@ -91,10 +91,10 @@
   /* Fleet add form */
   .fleet-add { padding: 8px 10px; border-top: 1px solid var(--border); background: var(--bg3); flex-shrink: 0; }
   .fleet-add-row { display: flex; gap: 5px; margin-bottom: 5px; }
-  .fleet-add input, .fleet-add select { background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--mono); font-size: 0.75rem; padding: 5px 7px; outline: none; border-radius: 2px; }
+  .fleet-add input, .fleet-add select { background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--mono); font-size: 0.75rem; padding: 5px 7px; outline: none; border-radius: 2px; transition: border-color 0.12s; }
   .fleet-add input:focus, .fleet-add select:focus { border-color: var(--red); }
   .fleet-add select option { background: var(--bg); }
-  .btn-create-unit { width: 100%; background: var(--red); color: #fff; border: none; font-family: var(--head); font-weight: 700; font-size: 0.75rem; letter-spacing: 1px; padding: 6px; cursor: pointer; text-transform: uppercase; border-radius: 2px; transition: all 0.1s; }
+  .btn-create-unit { width: 100%; background: var(--red); color: #fff; border: none; font-family: var(--head); font-weight: 700; font-size: 0.75rem; letter-spacing: 1px; padding: 6px; cursor: pointer; border-radius: 2px; transition: background 0.12s; text-transform: uppercase; }
   .btn-create-unit:hover { background: var(--red-bright); }
 
   /* ── INCIDENT PANEL (right) ── */
@@ -124,7 +124,7 @@
   .incident-suspended { opacity: 0.4; filter: grayscale(0.8); pointer-events: none; }
 
   /* ── LOG ── */
-  .log { position: fixed; bottom: 0; right: 0; left: 55px; height: 145px; background: var(--bg2); border-top: 2px solid var(--red); padding: 8px 16px; overflow-y: auto; font-family: var(--mono); font-size: 0.7rem; line-height: 1.4; color: var(--text-dim); }
+  .log { position: fixed; bottom: 0; right: 0; left: 55px; height: 145px; background: var(--bg2); border-top: 2px solid var(--red); padding: 8px 16px; overflow-y: auto; font-family: var(--mono); font-size: 0.7rem; line-height: 1.4; }
   .log::-webkit-scrollbar { width: 4px; }
   .log::-webkit-scrollbar-thumb { background: var(--border); }
   .log-entry { margin-bottom: 3px; border-bottom: 1px solid rgba(255,255,255,0.02); padding-bottom: 2px; }
@@ -154,7 +154,7 @@
   .note-hud .hud-header span { color: #000; }
   .note-hud .hud-header button { color: #000; }
   .note-hud .hud-body { padding: 0; }
-  .note-hud .hud-body textarea { width: 100%; height: 220px; background: var(--bg); border: none; color: var(--text); font-family: var(--mono); font-size: 0.76rem; line-height: 1.6; padding: 10px 12px; outline: none; resize: none; }
+  .note-hud .hud-body textarea { width: 100%; height: 220px; background: var(--bg); border: none; color: var(--text); font-family: var(--mono); font-size: 0.76rem; line-height: 1.6; padding: 10px; outline: none; resize: none; }
   .note-hud .hud-body textarea::placeholder { color: var(--text-dim); opacity: 0.4; }
 
   /* ── MODALS ── */
@@ -165,7 +165,7 @@
   .tf label { font-size: 0.58rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
   .tf input, .tf select { background: var(--bg3); border: 1px solid var(--border); color: var(--text); font-family: var(--mono); padding: 6px; outline: none; border-radius: 2px; }
   .tf input:focus, .tf select:focus { border-color: var(--red); }
-  .btn-add { background: var(--red); color: #fff; border: none; font-family: var(--head); font-weight: 700; padding: 8px 15px; cursor: pointer; text-transform: uppercase; border-radius: 2px; width: 100%; transition: all 0.1s; }
+  .btn-add { background: var(--red); color: #fff; border: none; font-family: var(--head); font-weight: 700; padding: 8px 15px; cursor: pointer; text-transform: uppercase; border-radius: 2px; width: 100%; transition: background 0.12s; }
   .btn-add:hover { background: var(--red-bright); }
 
   /* empty state */
@@ -217,10 +217,19 @@
       <!-- Add unit form -->
       <div class="fleet-add">
         <div class="fleet-add-row">
-          <input type="text" id="fCS" placeholder="Callsign" style="text-transform:uppercase;" maxlength="14">
+          <input type="text" id="fCS" placeholder="Callsign" style="text-transform:uppercase;flex:1;" maxlength="14">
         </div>
         <div class="fleet-add-row">
-          <input type="text" id="fType" placeholder="Type (Pumper, Tanker…)" style="flex:1">
+          <select id="fType" style="flex:1;">
+            <option value="">-- Unit Type --</option>
+            <option value="PUMPER">Pumper</option>
+            <option value="TANKER">Tanker</option>
+            <option value="AERIAL">Aerial</option>
+            <option value="RESCUE">Rescue</option>
+            <option value="UTILITY">Utility</option>
+            <option value="APPLIANCE">Appliance</option>
+            <option value="OTHER">Other</option>
+          </select>
         </div>
         <button class="btn-create-unit" onclick="createUnit()">+ Create Unit</button>
       </div>
@@ -318,8 +327,8 @@
     </div>
     <button onclick="saveEdit()" class="btn-add" style="margin-bottom:8px;">Apply Changes</button>
     <div style="display:flex;gap:8px;">
-      <button onclick="closeEditModal()" style="flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px;cursor:pointer;font-family:var(--head);border-radius:2px;">Cancel</button>
-      <button onclick="deleteCurrentIncident()" style="flex:1;background:var(--red);border:none;color:white;padding:9px;cursor:pointer;font-family:var(--head);font-weight:bold;border-radius:2px;">Delete Incident</button>
+      <button onclick="closeEditModal()" style="flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px;cursor:pointer;font-family:var(--head);border-radius:2px;font-weight:700;font-size:0.7rem;text-transform:uppercase;">Cancel</button>
+      <button onclick="deleteCurrentIncident()" style="flex:1;background:var(--red);border:none;color:white;padding:9px;cursor:pointer;font-family:var(--head);font-weight:bold;border-radius:2px;font-size:0.7rem;text-transform:uppercase;">Delete Incident</button>
     </div>
   </div>
 </div>
@@ -422,7 +431,7 @@ function toggleNotepad() {
 }
 function toggleNotepadBody() {
   var b = document.getElementById('notepadBody');
-  b.style.display = (b.style.display === 'none') ? 'flex' : 'none';
+  b.style.display = (b.style.display === 'none') ? 'block' : 'none';
 }
 function saveNotepad() { localStorage.setItem('frnsw_notepad', document.getElementById('notepadText').value); }
 function clearNotepad() {
@@ -432,25 +441,46 @@ function clearNotepad() {
 }
 
 // ══════════════════════════════════════════
-//  FLEET
+//  FLEET - UNIT CREATION
 // ══════════════════════════════════════════
 function createUnit() {
   var cs = document.getElementById('fCS').value.trim().toUpperCase();
-  if (!cs) { document.getElementById('fCS').focus(); return; }
-  if (store.fleet.find(function(u) { return u.cs === cs; })) {
-    alert('A unit with callsign ' + cs + ' already exists in the fleet.');
+  var typeSelect = document.getElementById('fType');
+  var type = typeSelect.value || 'APPLIANCE';
+  
+  // Validation
+  if (!cs) {
+    alert('Please enter a callsign');
+    document.getElementById('fCS').focus();
     return;
   }
+  
+  // Check for duplicate callsign
+  if (store.fleet.find(function(u) { return u.cs === cs; })) {
+    alert('Unit callsign "' + cs + '" already exists in the fleet.');
+    document.getElementById('fCS').select();
+    return;
+  }
+  
+  // Create unit
   var unit = {
     id:   Date.now(),
     cs:   cs,
-    type: document.getElementById('fType').value.trim().toUpperCase() || 'APPLIANCE'
+    type: type
   };
+  
   store.fleet.push(unit);
   save();
-  document.getElementById('fCS').value   = '';
-  document.getElementById('fType').value = '';
+  
+  // Log and feedback
+  logMsg('New unit created: ' + cs + ' (' + type + ')');
+  
+  // Clear form
+  document.getElementById('fCS').value = '';
+  typeSelect.value = '';
   document.getElementById('fCS').focus();
+  
+  // Re-render
   renderFleet();
 }
 
@@ -458,12 +488,16 @@ function deleteFleetUnit(id) {
   id = Number(id);
   var unit = store.fleet.find(function(u) { return u.id === id; });
   if (!unit) return;
+  
   if (isAssigned(id)) {
-    alert(unit.cs + ' is currently assigned to an incident. Remove it from the incident first.');
+    alert('Cannot delete "' + unit.cs + '" — it is currently assigned to an incident. Remove it from the incident first.');
     return;
   }
-  if (!confirm('Remove ' + unit.cs + ' from fleet?')) return;
+  
+  if (!confirm('Delete unit "' + unit.cs + '" from the fleet? This action cannot be undone.')) return;
+  
   store.fleet = store.fleet.filter(function(u) { return u.id !== id; });
+  logMsg('Unit deleted: ' + unit.cs);
   save();
   renderFleet();
 }
@@ -472,14 +506,17 @@ function assignUnitToIncident(fleetId) {
   fleetId = Number(fleetId);
   var inc = getActive();
   if (!inc) { alert('Select or create an incident first.'); return; }
-  if (inc.status === 'suspended') { alert('This incident is suspended.'); return; }
+  if (inc.status === 'suspended') { alert('This incident is suspended. Cannot assign units.'); return; }
+  
   var fu = store.fleet.find(function(u) { return u.id === fleetId; });
   if (!fu) return;
+  
   if (isAssigned(fleetId)) {
     var existing = assignedTo(fleetId);
-    alert(fu.cs + ' is already assigned to ' + (existing ? existing.name : 'another incident') + '.');
+    alert('"' + fu.cs + '" is already assigned to ' + (existing ? existing.name : 'another incident') + '.');
     return;
   }
+  
   var unit = {
     id:       Date.now(),
     fleetId:  fleetId,
@@ -490,6 +527,7 @@ function assignUnitToIncident(fleetId) {
     isCmd:    false,
     ts:       ts()
   };
+  
   inc.units.push(unit);
   logMsg(fu.cs + ' assigned to ' + inc.name);
   save();
@@ -664,7 +702,7 @@ function render() {
 
   if (!inc) {
     document.getElementById('unitTable').innerHTML =
-      '<tr><td colspan="5" style="text-align:center;padding:60px;color:var(--text-dim);font-family:var(--head);letter-spacing:2px;text-transform:uppercase;font-size:0.7rem;">No active incident — create one to begin</td></tr>';
+      '<tr><td colspan="5" style="text-align:center;padding:60px;color:var(--text-dim);font-family:var(--head);letter-spacing:2px;text-transform:uppercase;font-size:0.7rem;">No active incident selected</td></tr>';
     ['responding','scene','returning','total'].forEach(function(s) {
       document.getElementById('stat-' + s).textContent = '0';
     });
@@ -695,7 +733,7 @@ function render() {
 
   if (!inc.units.length) {
     document.getElementById('unitTable').innerHTML =
-      '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-dim);font-family:var(--head);letter-spacing:2px;text-transform:uppercase;font-size:0.7rem;">No units assigned — select from fleet to begin</td></tr>';
+      '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-dim);font-family:var(--head);letter-spacing:2px;text-transform:uppercase;font-size:0.7rem;">No units assigned — select from fleet panel</td></tr>';
   } else {
     var sorted = inc.units.slice().sort(function(a,b) { return (b.isCmd ? 1 : 0) - (a.isCmd ? 1 : 0); });
     document.getElementById('unitTable').innerHTML = sorted.map(function(u) {
@@ -708,7 +746,7 @@ function render() {
         + '<td><div style="font-family:var(--mono);font-weight:bold;">' + (u.isCmd ? '<span class="cmd-badge">COMMAND</span>' : '') + esc(u.cs) + '</div></td>'
         + '<td><span style="font-size:0.72rem;color:var(--blue);font-weight:bold;">' + esc(u.type || 'APPLIANCE') + '</span></td>'
         + '<td><div style="display:flex;gap:3px;flex-wrap:wrap;">' + btns + '</div></td>'
-        + '<td><input style="width:100%;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:0.78rem;padding:3px;outline:none;" value="' + loc + '" oninput="updateLocation(' + u.id + ', this.value)" placeholder="Sector / Location"></td>'
+        + '<td><input style="width:100%;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:0.78rem;padding:3px;outline:none;" type="text" value="' + loc + '" placeholder="e.g. Sector 2A" oninput="updateLocation(' + u.id + ', this.value)"></td>'
         + '<td style="white-space:nowrap;">'
         +   '<button class="btn-cmd ' + (u.isCmd ? 'is-cmd' : '') + '" onclick="toggleCommand(' + u.id + ')">CMD</button> '
         +   '<button class="btn-cmd" style="color:var(--red-bright);" onclick="removeUnit(' + u.id + ')">✕</button>'
