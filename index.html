@@ -172,27 +172,120 @@
 
   .suspended-overlay { position: absolute; inset: 0; background: rgba(13, 15, 18, 0.7); display: flex; align-items: center; justify-content: center; z-index: 10; }
   .suspended-msg { background: var(--amber); color: #000; padding: 15px 30px; font-family: var(--head); font-weight: 700; text-transform: uppercase; border-radius: 2px; }
-  .incident-suspended { opacity: 0.4; filter: grayscale(0.8); pointer-events: none; }
+  /* INCIDENT TAB STRIP */
+  .inc-tab-strip {
+    display: flex;
+    align-items: stretch;
+    overflow-x: auto;
+    flex: 1;
+    margin: 0 1rem;
+    gap: 2px;
+    height: 60px;
+  }
+  .inc-tab-strip::-webkit-scrollbar { height: 3px; }
+  .inc-tab-strip::-webkit-scrollbar-thumb { background: var(--border); }
+
+  .inc-tab {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 14px;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    border-top: 3px solid transparent;
+    transition: all 0.15s;
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-width: 120px;
+    position: relative;
+    background: transparent;
+    border-left: 1px solid transparent;
+    border-right: 1px solid transparent;
+  }
+  .inc-tab:hover { background: var(--bg3); }
+  .inc-tab.active { 
+    background: var(--bg3); 
+    border-bottom-color: var(--red); 
+    border-left-color: var(--border);
+    border-right-color: var(--border);
+  }
+  .inc-tab-name { 
+    font-family: var(--mono); font-size: 0.78rem; 
+    color: var(--text-dim); font-weight: bold; 
+    letter-spacing: 1px;
+  }
+  .inc-tab.active .inc-tab-name { color: var(--red-bright); }
+  .inc-tab-meta { 
+    font-size: 0.58rem; color: var(--text-dim); 
+    letter-spacing: 1px; text-transform: uppercase; 
+    margin-top: 2px; display: flex; align-items: center; gap: 5px;
+  }
+  .inc-tab-dot { 
+    width: 5px; height: 5px; border-radius: 50%; 
+    background: var(--green); display: inline-block; flex-shrink:0;
+  }
+  .inc-tab-dot.suspended { background: var(--amber); }
+  .inc-tab-close {
+    position: absolute; top: 6px; right: 5px;
+    background: none; border: none; color: var(--border);
+    cursor: pointer; font-size: 0.7rem; line-height: 1;
+    padding: 2px; transition: color 0.15s;
+  }
+  .inc-tab-close:hover { color: var(--red-bright); }
+  .inc-tab-units {
+    font-family: var(--mono); font-size: 0.6rem;
+    color: var(--text-dim);
+  }
+  .inc-tab.active .inc-tab-units { color: var(--amber); }
+
+  /* NOTEPAD HUD */
+  .notepad-hud {
+    position: fixed; top: 80px; left: 70px;
+    width: 300px; background: var(--bg2);
+    border: 1px solid var(--amber); border-radius: 4px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+    z-index: 1000; display: none; flex-direction: column;
+  }
+  .notepad-header {
+    background: var(--amber); padding: 8px 12px;
+    display: flex; justify-content: space-between; align-items: center;
+    cursor: move;
+  }
+  .notepad-header span { font-family: var(--head); font-weight: 700; font-size: 0.85rem; letter-spacing: 1px; color: #000; }
+  .notepad-body { 
+    padding: 0; background: var(--bg);
+  }
+  .notepad-body textarea {
+    width: 100%; height: 240px; background: var(--bg);
+    border: none; color: var(--text); font-family: var(--mono);
+    font-size: 0.78rem; line-height: 1.6; padding: 12px 14px;
+    outline: none; resize: none;
+  }
+  .notepad-body textarea::placeholder { color: var(--text-dim); opacity: 0.4; }
+  .notepad-footer-bar {
+    padding: 5px 12px; background: var(--bg2); border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .notepad-footer-bar span { font-size: 0.58rem; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; }
+  .notepad-footer-bar button { background: none; border: none; color: var(--text-dim); font-family: var(--head); font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; }
+  .notepad-footer-bar button:hover { color: var(--red-bright); }
 </style>
 </head>
 <body>
 
 <div class="sidebar">
   <button class="btn-qrf" onclick="toggleQRF()" title="Quick Reference Codes">QRF</button>
+  <button class="btn-qrf" onclick="toggleNotepad()" title="Notepad" style="margin-top:8px; background:var(--bg3); border:1px solid var(--border); box-shadow:none; font-size:0.65rem;">NOTE</button>
 </div>
 
 <div class="app-container">
   <header>
     <div class="hdr-left">
       <div class="frnsw-badge">FRNSW</div>
-      <div class="incident-manager">
-        <label style="font-size: 0.55rem; color: var(--text-dim);">CONTROL</label>
-        <select id="incidentSelector" onchange="switchIncident()"></select>
-        <button class="btn-ui btn-new" onclick="createNewIncident()">+ New</button>
-        <button class="btn-ui btn-edit" onclick="openEditModal()">Manage</button>
-      </div>
+      <button class="btn-ui btn-new" onclick="createNewIncident()" style="padding:5px 14px; font-size:0.72rem;">+ New Incident</button>
     </div>
-    <div id="clock" style="font-family: var(--mono); color: var(--amber); font-size: 1.1rem;">00:00:00</div>
+    <div id="incTabStrip" class="inc-tab-strip"></div>
+    <div id="clock" style="font-family: var(--mono); color: var(--amber); font-size: 1.1rem; flex-shrink:0;">00:00:00</div>
   </header>
 
   <div class="stats-strip">
@@ -263,6 +356,23 @@
   </div>
 </div>
 
+<div id="notepadHud" class="notepad-hud">
+  <div class="notepad-header" id="notepadHeader">
+    <span>📝 NOTEPAD</span>
+    <div style="display:flex; gap:8px;">
+      <button onclick="document.getElementById('notepadBody').style.display = document.getElementById('notepadBody').style.display==='none'?'block':'none'" style="background:none; border:none; color:#000; cursor:pointer; font-weight:bold; font-size:1rem;">_</button>
+      <button onclick="toggleNotepad()" style="background:none; border:none; color:#000; cursor:pointer; font-weight:bold; font-size:1rem;">✕</button>
+    </div>
+  </div>
+  <div class="notepad-body" id="notepadBody">
+    <textarea id="notepadText" placeholder="General notes, reminders, sector comms, anything…" oninput="localStorage.setItem('frnsw_notepad', this.value)"></textarea>
+  </div>
+  <div class="notepad-footer-bar">
+    <span>Auto-saved</span>
+    <button onclick="if(confirm('Clear notepad?')){document.getElementById('notepadText').value='';localStorage.removeItem('frnsw_notepad');}">Clear</button>
+  </div>
+</div>
+
 <div class="modal-wrap" id="editModal">
   <div class="modal-box">
     <h3 style="font-family:var(--head); margin-bottom:1.5rem; letter-spacing:2px; border-bottom:1px solid var(--red); padding-bottom:8px;">INCIDENT MANAGEMENT</h3>
@@ -291,46 +401,51 @@
   const STATUSES = ['responding', 'scene', 'returning', 'available'];
 
   // QRF TOGGLE
+  // QRF TOGGLE & DRAG
   function toggleQRF() {
     const hud = document.getElementById('qrfHud');
     hud.style.display = (hud.style.display === 'flex') ? 'none' : 'flex';
   }
-
   function toggleQRFBody() {
     const body = document.getElementById('qrfBody');
     body.style.display = (body.style.display === 'none') ? 'block' : 'none';
   }
+  makeDraggable(document.getElementById('qrfHud'), document.getElementById('qrfHeader'));
 
-  // DRAGGABLE LOGIC
-  const qrfHeader = document.getElementById("qrfHeader");
-  const qrfHud = document.getElementById("qrfHud");
-  let isDragging = false;
-  let offset = [0,0];
+  // NOTEPAD TOGGLE & DRAG
+  function toggleNotepad() {
+    const hud = document.getElementById('notepadHud');
+    hud.style.display = (hud.style.display === 'flex') ? 'none' : 'flex';
+  }
+  makeDraggable(document.getElementById('notepadHud'), document.getElementById('notepadHeader'));
+  // restore notepad content
+  document.getElementById('notepadText').value = localStorage.getItem('frnsw_notepad') || '';
 
-  qrfHeader.addEventListener('mousedown', (e) => {
-    isDragging = true;
-    offset = [qrfHud.offsetLeft - e.clientX, qrfHud.offsetTop - e.clientY];
-  });
-  document.addEventListener('mouseup', () => isDragging = false);
-  document.addEventListener('mousemove', (e) => {
-    if (isDragging) {
-      qrfHud.style.left = (e.clientX + offset[0]) + 'px';
-      qrfHud.style.top = (e.clientY + offset[1]) + 'px';
-    }
-  });
+  function makeDraggable(el, handle) {
+    let dragging = false, ox = 0, oy = 0;
+    handle.addEventListener('mousedown', e => {
+      dragging = true;
+      ox = el.offsetLeft - e.clientX;
+      oy = el.offsetTop - e.clientY;
+    });
+    document.addEventListener('mouseup', () => dragging = false);
+    document.addEventListener('mousemove', e => {
+      if (dragging) { el.style.left = (e.clientX + ox) + 'px'; el.style.top = (e.clientY + oy) + 'px'; }
+    });
+  }
 
   // STORAGE & HELPERS
   function save() { localStorage.setItem('frnsw_v3', JSON.stringify(store)); }
   function getActive() { return store.incidents.find(i => i.id === store.activeId); }
 
   function createNewIncident() {
-    const name = prompt("Enter Incident Identifier:");
+    const name = prompt("Enter Incident Identifier (e.g. P25-12345):");
     if (!name) return;
     const newInc = { 
       id: Date.now(), 
       name: name.toUpperCase(), 
       units: [], 
-      logs: [{ts: new Date().toLocaleTimeString(), msg: `Incident ${name} Created`}], 
+      logs: [{ts: new Date().toLocaleTimeString(), msg: `Incident ${name.toUpperCase()} Created`}], 
       status: 'active' 
     };
     store.incidents.push(newInc);
@@ -338,9 +453,42 @@
     save(); init();
   }
 
-  function switchIncident() {
-    store.activeId = parseInt(document.getElementById('incidentSelector').value);
+  function switchIncident(id) {
+    store.activeId = id;
     save(); render();
+  }
+
+  function deleteIncidentById(id) {
+    const inc = store.incidents.find(i => i.id === id);
+    if (!inc) return;
+    if (!confirm(`Delete incident ${inc.name} and all unit data? This cannot be undone.`)) return;
+    store.incidents = store.incidents.filter(i => i.id !== id);
+    if (store.activeId === id) store.activeId = store.incidents.length ? store.incidents[0].id : null;
+    save(); init();
+  }
+
+  function renderTabs() {
+    const strip = document.getElementById('incTabStrip');
+    if (!store.incidents.length) {
+      strip.innerHTML = '<div style="font-family:var(--head);font-size:0.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);display:flex;align-items:center;padding:0 8px;">No incidents — click + New Incident</div>';
+      return;
+    }
+    strip.innerHTML = store.incidents.map(i => {
+      const isActive = i.id === store.activeId;
+      const isSusp = i.status === 'suspended';
+      const unitCount = i.units.length;
+      const cmdUnit = i.units.find(u => u.isCmd);
+      return `<div class="inc-tab ${isActive ? 'active' : ''}" onclick="switchIncident(${i.id})">
+        <button class="inc-tab-close" onclick="event.stopPropagation(); deleteIncidentById(${i.id})">✕</button>
+        <div class="inc-tab-name">${i.name}</div>
+        <div class="inc-tab-meta">
+          <span class="inc-tab-dot ${isSusp ? 'suspended' : ''}"></span>
+          <span>${isSusp ? 'SUSPENDED' : 'ACTIVE'}</span>
+          <span class="inc-tab-units">· ${unitCount} unit${unitCount!==1?'s':''}</span>
+        </div>
+        ${cmdUnit ? `<div style="font-size:0.55rem;color:var(--gold);letter-spacing:1px;margin-top:1px;">IC: ${cmdUnit.cs}</div>` : ''}
+      </div>`;
+    }).join('');
   }
 
   function openEditModal() {
@@ -364,10 +512,9 @@
   }
 
   function deleteCurrentIncident() {
-    if(!store.activeId || !confirm("CRITICAL: Permanently delete this incident and all unit data?")) return;
-    store.incidents = store.incidents.filter(i => i.id !== store.activeId);
-    store.activeId = store.incidents.length ? store.incidents[0].id : null;
-    save(); closeEditModal(); init();
+    if (!store.activeId) return;
+    deleteIncidentById(store.activeId);
+    closeEditModal();
   }
 
   // UNIT LOGIC
@@ -427,16 +574,17 @@
 
   // UI RENDER
   function render() {
-    const inc = getActive();
-    const sel = document.getElementById('incidentSelector');
-    sel.innerHTML = store.incidents.map(i => `<option value="${i.id}" ${i.id === store.activeId ? 'selected' : ''}>${i.status === 'suspended' ? '[S] ' : ''}${i.name}</option>`).join('');
+    renderTabs();
 
+    const inc = getActive();
     const main = document.getElementById('main-content');
     const toolbar = document.getElementById('toolbar');
     const container = document.getElementById('unit-container');
 
     if (!inc) {
-      document.getElementById('unitTable').innerHTML = '<tr><td colspan="5" style="text-align:center; padding:80px; color:var(--text-dim);">No Active Incidents. Click +NEW to start.</td></tr>';
+      document.getElementById('unitTable').innerHTML = '<tr><td colspan="5" style="text-align:center; padding:80px; color:var(--text-dim);">No Active Incidents. Click + New Incident to start.</td></tr>';
+      ['responding','scene','returning','total'].forEach(s => document.getElementById('stat-'+s).textContent = '0');
+      document.getElementById('log').innerHTML = '';
       return;
     }
 
