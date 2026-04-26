@@ -1,448 +1,737 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FRNSW Command & Control Tracker</title>
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --red: #cc2020;
-            --red-bright: #ff3333;
-            --green: #27ae60;
-            --amber: #e67e22;
-            --blue: #2980b9;
-            --gold: #f1c40f;
-            --bg: #0d0f12;
-            --bg2: #13171c;
-            --bg3: #1a1f26;
-            --border: #252c38;
-            --text: #dce6f0;
-            --text-dim: #6a7a8a;
-            --mono: 'Share Tech Mono', monospace;
-            --head: 'Rajdhani', sans-serif;
-            --body: 'Barlow', sans-serif;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FRNSW Command & Control Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #cc2020; --red-bright: #ff3333;
+    --green: #27ae60; --amber: #e67e22; --blue: #2980b9; --gold: #f1c40f;
+    --bg: #0d0f12; --bg2: #13171c; --bg3: #1a1f26; --bg4: #20262f;
+    --border: #252c38; --text: #dce6f0; --text-dim: #6a7a8a;
+    --mono: 'Share Tech Mono', monospace;
+    --head: 'Rajdhani', sans-serif;
+    --body: 'Barlow', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--body); height: 100vh; overflow: hidden; display: flex; flex-direction: row; }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { 
-            background: var(--bg); 
-            color: var(--text); 
-            font-family: var(--body); 
-            min-height: 100vh; 
-            overflow: hidden; 
-            display: flex; 
-            flex-direction: row; 
-        }
+  /* ── SIDEBAR ── */
+  .sidebar { width: 55px; background: var(--bg2); border-right: 2px solid var(--red); display: flex; flex-direction: column; align-items: center; padding-top: 15px; gap: 8px; z-index: 200; flex-shrink: 0; }
+  .btn-side { width: 40px; height: 40px; border-radius: 4px; border: none; font-family: var(--head); font-weight: 700; font-size: 0.7rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; text-align: center; line-height: 1.1; }
+  .btn-side.red  { background: var(--red); color: white; box-shadow: 0 0 10px rgba(204,32,32,0.3); }
+  .btn-side.red:hover { background: var(--red-bright); transform: scale(1.05); }
+  .btn-side.dim  { background: var(--bg3); color: var(--text-dim); border: 1px solid var(--border); }
+  .btn-side.dim:hover { color: var(--text); border-color: var(--text-dim); }
+  .btn-side.dim.active { background: var(--bg4); color: var(--amber); border-color: var(--amber); }
 
-        /* SIDEBAR */
-        .sidebar {
-            width: 55px;
-            background: var(--bg2);
-            border-right: 2px solid var(--red);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-top: 15px;
-            z-index: 200;
-        }
+  /* ── APP CONTAINER ── */
+  .app-container { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
 
-        .btn-qrf {
-            background: var(--red);
-            color: white;
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 4px;
-            font-family: var(--head);
-            font-weight: 700;
-            font-size: 0.75rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            box-shadow: 0 0 10px rgba(204, 32, 32, 0.3);
-        }
-        .btn-qrf:hover { background: var(--red-bright); transform: scale(1.05); }
+  /* ── HEADER ── */
+  header { background: var(--bg2); border-bottom: 3px solid var(--red); padding: 0 1.2rem; height: 60px; display: flex; align-items: center; justify-content: space-between; z-index: 100; flex-shrink: 0; }
+  .hdr-left { display: flex; align-items: center; gap: 1rem; flex-shrink: 0; }
+  .frnsw-badge { background: var(--red); color: #fff; font-family: var(--head); font-weight: 700; padding: 4px 12px; clip-path: polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%); font-size: 0.9rem; letter-spacing: 1px; }
+  .btn-ui { border: none; padding: 5px 12px; border-radius: 3px; cursor: pointer; font-family: var(--head); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+  .btn-new  { background: var(--green); color: white; }
+  .btn-new:hover { filter: brightness(1.15); }
 
-        /* MAIN WRAPPER */
-        .app-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
+  /* ── INCIDENT TABS ── */
+  .inc-tab-strip { display: flex; align-items: stretch; overflow-x: auto; flex: 1; margin: 0 0.8rem; height: 60px; }
+  .inc-tab-strip::-webkit-scrollbar { height: 3px; }
+  .inc-tab-strip::-webkit-scrollbar-thumb { background: var(--border); }
+  .inc-tab { display: flex; flex-direction: column; justify-content: center; padding: 0 14px 0 12px; cursor: pointer; border-bottom: 3px solid transparent; border-top: 3px solid transparent; border-left: 1px solid transparent; border-right: 1px solid transparent; transition: background 0.15s; white-space: nowrap; flex-shrink: 0; min-width: 110px; position: relative; }
+  .inc-tab:hover { background: var(--bg3); }
+  .inc-tab.active { background: var(--bg3); border-bottom-color: var(--red); border-left-color: var(--border); border-right-color: var(--border); }
+  .inc-tab-name { font-family: var(--mono); font-size: 0.75rem; color: var(--text-dim); font-weight: bold; letter-spacing: 1px; }
+  .inc-tab.active .inc-tab-name { color: var(--red-bright); }
+  .inc-tab-meta { font-size: 0.55rem; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; display: flex; align-items: center; gap: 4px; }
+  .inc-tab-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); display: inline-block; flex-shrink: 0; }
+  .inc-tab-dot.suspended { background: var(--amber); }
+  .inc-tab-close { position: absolute; top: 5px; right: 4px; background: none; border: none; color: var(--border); cursor: pointer; font-size: 0.7rem; line-height: 1; padding: 2px; transition: color 0.15s; }
+  .inc-tab-close:hover { color: var(--red-bright); }
+  .inc-tab-ic { font-size: 0.52rem; color: var(--gold); letter-spacing: 1px; margin-top: 1px; }
 
-        header {
-            background: var(--bg2);
-            border-bottom: 3px solid var(--red);
-            padding: 0 1.5rem;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            z-index: 100;
-        }
+  #clock { font-family: var(--mono); color: var(--amber); font-size: 1rem; flex-shrink: 0; }
 
-        .hdr-left { display: flex; align-items: center; gap: 10px; }
-        .frnsw-badge { 
-            background: var(--red); 
-            color: #fff; 
-            font-family: var(--head); 
-            font-weight: 700; 
-            padding: 4px 12px; 
-            clip-path: polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%); 
-        }
+  /* ── STATS STRIP ── */
+  .stats-strip { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--bg2); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  .stat { padding: 0.45rem 1rem; border-right: 1px solid var(--border); display: flex; align-items: center; gap: 0.8rem; }
+  .stat:last-child { border-right: none; }
+  .stat-num { font-family: var(--mono); font-size: 1.4rem; color: var(--text); }
+  .stat-label { font-size: 0.58rem; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); }
 
-        .btn-ui { border: none; padding: 6px 12px; border-radius: 3px; cursor: pointer; font-family: var(--head); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; transition: opacity 0.2s; }
-        .btn-new { background: var(--green); color: white; }
-        .btn-edit { background: var(--blue); color: white; }
-        .btn-ui:hover { opacity: 0.8; }
+  /* ── MAIN PANELS ── */
+  .panels { flex: 1; display: flex; overflow: hidden; min-height: 0; }
 
-        .stats-strip { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--bg2); border-bottom: 1px solid var(--border); }
-        .stat { padding: 0.5rem 1.5rem; border-right: 1px solid var(--border); display: flex; align-items: center; gap: 1rem; }
-        .stat-num { font-family: var(--mono); font-size: 1.5rem; color: var(--text); }
-        .stat-label { font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); }
+  /* ── FLEET PANEL (left) ── */
+  .fleet-panel { width: 280px; flex-shrink: 0; background: var(--bg2); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+  .panel-header { padding: 8px 12px; border-bottom: 1px solid var(--border); background: var(--bg3); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .panel-title { font-family: var(--head); font-size: 0.7rem; letter-spacing: 3px; text-transform: uppercase; color: var(--text-dim); }
+  .fleet-list { flex: 1; overflow-y: auto; }
+  .fleet-list::-webkit-scrollbar { width: 4px; }
+  .fleet-list::-webkit-scrollbar-thumb { background: var(--border); }
 
-        .toolbar { display: flex; align-items: flex-end; gap: 0.8rem; padding: 0.8rem 1.5rem; background: var(--bg2); border-bottom: 1px solid var(--border); }
-        .tf { display: flex; flex-direction: column; gap: 3px; }
-        .tf label { font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; }
-        .tf input, .tf select { background: var(--bg3); border: 1px solid var(--border); color: var(--text); font-family: var(--mono); padding: 6px; outline: none; border-radius: 2px; }
-        .btn-add { background: var(--red); color: #fff; border: none; font-family: var(--head); font-weight: 700; padding: 8px 15px; cursor: pointer; text-transform: uppercase; }
+  .fleet-item { display: flex; align-items: center; padding: 7px 10px; border-bottom: 1px solid rgba(37,44,56,0.6); gap: 8px; transition: background 0.12s; }
+  .fleet-item:hover { background: var(--bg3); }
+  .fleet-item.assigned { opacity: 0.45; }
+  .fleet-cs { font-family: var(--mono); font-size: 0.82rem; font-weight: bold; color: #fff; flex: 1; min-width: 0; }
+  .fleet-type { font-size: 0.62rem; color: var(--blue); text-transform: uppercase; white-space: nowrap; }
+  .fleet-badge { font-size: 0.52rem; padding: 1px 5px; border-radius: 2px; font-family: var(--head); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; }
+  .fleet-badge.free { background: rgba(39,174,96,0.15); color: var(--green); border: 1px solid rgba(39,174,96,0.3); }
+  .fleet-badge.busy { background: rgba(204,32,32,0.15); color: var(--red-bright); border: 1px solid rgba(204,32,32,0.3); }
+  .btn-assign { background: var(--blue); color: #fff; border: none; font-family: var(--head); font-size: 0.6rem; font-weight: 700; padding: 3px 8px; border-radius: 2px; cursor: pointer; text-transform: uppercase; white-space: nowrap; transition: background 0.15s; }
+  .btn-assign:hover { background: #3498db; }
+  .btn-assign:disabled { background: var(--border); color: var(--text-dim); cursor: not-allowed; }
+  .btn-del-unit { background: none; border: none; color: var(--border); cursor: pointer; font-size: 0.75rem; padding: 2px 4px; transition: color 0.15s; line-height: 1; flex-shrink: 0; }
+  .btn-del-unit:hover { color: var(--red-bright); }
 
-        .main-content { flex: 1; overflow-y: auto; padding: 1rem 1.5rem; padding-bottom: 180px; position: relative; }
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; padding: 10px; border-bottom: 1px solid var(--border); }
-        td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  /* Fleet add form */
+  .fleet-add { padding: 8px 10px; border-top: 1px solid var(--border); background: var(--bg3); flex-shrink: 0; }
+  .fleet-add-row { display: flex; gap: 5px; margin-bottom: 5px; }
+  .fleet-add input, .fleet-add select { background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--mono); font-size: 0.75rem; padding: 5px 7px; outline: none; border-radius: 2px; width: 100%; transition: border-color 0.2s; }
+  .fleet-add input:focus, .fleet-add select:focus { border-color: var(--red); }
+  .fleet-add select option { background: var(--bg); }
+  .btn-create-unit { width: 100%; background: var(--red); color: #fff; border: none; font-family: var(--head); font-weight: 700; font-size: 0.75rem; letter-spacing: 1px; padding: 6px; cursor: pointer; text-transform: uppercase; border-radius: 2px; transition: background 0.15s; }
+  .btn-create-unit:hover { background: var(--red-bright); }
 
-        .command-row { border-left: 4px solid var(--gold); background: rgba(241, 196, 15, 0.05); }
-        .cmd-badge { color: var(--gold); font-weight: bold; font-size: 0.7rem; border: 1px solid var(--gold); padding: 1px 4px; border-radius: 3px; margin-right: 5px; }
+  /* ── INCIDENT PANEL (right) ── */
+  .incident-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
 
-        .sbtn { background: var(--bg3); border: 1px solid var(--border); color: var(--text-dim); padding: 4px 8px; cursor: pointer; font-size: 0.65rem; border-radius: 2px; }
-        .sbtn.active { border-color: var(--color); color: var(--color); font-weight: bold; background: rgba(255,255,255,0.05); }
-        .btn-cmd { background: transparent; border: 1px solid var(--border); color: var(--text-dim); padding: 4px 8px; cursor: pointer; border-radius: 2px; font-size: 0.65rem; }
-        .btn-cmd.is-cmd { border-color: var(--gold); color: var(--gold); }
+  /* Toolbar */
+  .toolbar { display: flex; align-items: center; gap: 0.6rem; padding: 6px 1.2rem; background: var(--bg2); border-bottom: 1px solid var(--border); flex-shrink: 0; flex-wrap: wrap; }
+  .toolbar-label { font-family: var(--head); font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); }
 
-        .log { position: fixed; bottom: 0; right: 0; left: 55px; height: 150px; background: var(--bg2); border-top: 2px solid var(--red); padding: 10px 20px; overflow-y: auto; font-family: var(--mono); font-size: 0.75rem; z-index: 50; }
-        .log-entry { margin-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,0.02); }
-        .log-ts { color: var(--amber); margin-right: 10px; }
+  .main-content { flex: 1; overflow-y: auto; padding: 1rem 1.2rem; padding-bottom: 170px; position: relative; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 0.62rem; color: var(--text-dim); text-transform: uppercase; padding: 8px 10px; border-bottom: 1px solid var(--border); letter-spacing: 1px; }
+  td { padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
 
-        /* HUDs */
-        .qrf-hud, .notepad-hud {
-            position: fixed; top: 80px; left: 70px;
-            width: 290px; background: var(--bg2);
-            border: 1px solid var(--red); border-radius: 4px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.9);
-            z-index: 1000; display: none; flex-direction: column;
-        }
-        .qrf-header, .notepad-header { background: var(--red); padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; cursor: move; }
-        .qrf-header span, .notepad-header span { font-family: var(--head); font-weight: 700; font-size: 0.85rem; letter-spacing: 1px; }
-        .qrf-body, .notepad-body { padding: 15px; font-family: var(--mono); font-size: 0.8rem; background: var(--bg); }
-        
-        .notepad-hud { border-color: var(--amber); }
-        .notepad-header { background: var(--amber); }
-        .notepad-header span { color: #000; }
-        .notepad-body textarea { width: 100%; height: 200px; background: transparent; color: white; border: none; resize: none; outline: none; }
+  .command-row { border-left: 4px solid var(--gold); background: rgba(241,196,15,0.04); }
+  .cmd-badge { color: var(--gold); font-weight: bold; font-size: 0.65rem; border: 1px solid var(--gold); padding: 1px 4px; border-radius: 3px; margin-right: 5px; }
 
-        /* INCIDENT TABS */
-        .inc-tab-strip { display: flex; overflow-x: auto; flex: 1; margin: 0 1rem; gap: 2px; height: 60px; }
-        .inc-tab {
-            display: flex; flex-direction: column; justify-content: center; padding: 0 14px;
-            cursor: pointer; border-bottom: 3px solid transparent; min-width: 120px; position: relative;
-        }
-        .inc-tab.active { background: var(--bg3); border-bottom-color: var(--red); }
-        .inc-tab-name { font-family: var(--mono); font-size: 0.78rem; font-weight: bold; color: var(--text-dim); }
-        .inc-tab.active .inc-tab-name { color: var(--red-bright); }
-        .inc-tab-meta { font-size: 0.58rem; color: var(--text-dim); text-transform: uppercase; display: flex; align-items: center; gap: 5px; }
-        .inc-tab-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); }
-        .inc-tab-dot.suspended { background: var(--amber); }
+  .sbtn { background: var(--bg3); border: 1px solid var(--border); color: var(--text-dim); padding: 3px 7px; cursor: pointer; font-size: 0.62rem; border-radius: 2px; transition: all 0.12s; }
+  .sbtn.active { border-color: var(--color); color: var(--color); font-weight: bold; background: rgba(255,255,255,0.04); }
+  .sbtn:hover:not(.active) { border-color: var(--text-dim); color: var(--text); }
+  .btn-cmd { background: transparent; border: 1px solid var(--border); color: var(--text-dim); padding: 3px 8px; cursor: pointer; border-radius: 2px; font-size: 0.62rem; transition: all 0.12s; }
+  .btn-cmd:hover { border-color: var(--text-dim); color: var(--text); }
+  .btn-cmd.is-cmd { border-color: var(--gold); color: var(--gold); }
 
-        /* MODALS */
-        .modal-wrap { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; align-items: center; justify-content: center; }
-        .modal-box { background: var(--bg2); border: 2px solid var(--border); padding: 2rem; border-radius: 4px; width: 420px; }
-        
-        .suspended-overlay { position: absolute; inset: 0; background: rgba(13, 15, 18, 0.8); display: flex; align-items: center; justify-content: center; z-index: 10; pointer-events: none; }
-        .suspended-msg { background: var(--amber); color: #000; padding: 15px 30px; font-family: var(--head); font-weight: 700; text-transform: uppercase; }
-    </style>
+  .suspended-overlay { position: absolute; inset: 0; background: rgba(13,15,18,0.7); display: flex; align-items: center; justify-content: center; z-index: 10; }
+  .suspended-msg { background: var(--amber); color: #000; padding: 15px 30px; font-family: var(--head); font-weight: 700; text-transform: uppercase; border-radius: 2px; }
+  .incident-suspended { opacity: 0.4; filter: grayscale(0.8); pointer-events: none; }
+
+  /* ── LOG ── */
+  .log { position: fixed; bottom: 0; right: 0; left: 55px; height: 145px; background: var(--bg2); border-top: 2px solid var(--red); padding: 8px 16px; overflow-y: auto; font-family: var(--mono); font-size: 0.72rem; z-index: 50; }
+  .log::-webkit-scrollbar { width: 4px; }
+  .log::-webkit-scrollbar-thumb { background: var(--border); }
+  .log-entry { margin-bottom: 3px; border-bottom: 1px solid rgba(255,255,255,0.02); padding-bottom: 2px; }
+  .log-ts { color: var(--amber); margin-right: 8px; }
+
+  /* ── HUDs ── */
+  .hud { position: fixed; top: 80px; left: 70px; background: var(--bg2); border-radius: 4px; box-shadow: 0 10px 40px rgba(0,0,0,0.9); z-index: 1000; display: none; flex-direction: column; }
+  .hud-header { padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; cursor: move; border-radius: 4px 4px 0 0; }
+  .hud-header span { font-family: var(--head); font-weight: 700; font-size: 0.85rem; letter-spacing: 1px; }
+  .hud-header button { background: none; border: none; cursor: pointer; font-weight: bold; font-size: 0.9rem; padding: 0 2px; }
+  .hud-body { padding: 14px; font-family: var(--mono); font-size: 0.78rem; line-height: 1.5; background: var(--bg); }
+  .hud-footer { padding: 5px 12px; background: var(--bg2); border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; border-radius: 0 0 4px 4px; }
+  .hud-footer span { font-size: 0.56rem; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; }
+  .hud-footer button { background: none; border: none; color: var(--text-dim); font-family: var(--head); font-size: 0.58rem; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; }
+  .hud-footer button:hover { color: var(--red-bright); }
+
+  .qrf-hud { border: 1px solid var(--red); width: 290px; }
+  .qrf-hud .hud-header { background: var(--red); }
+  .qrf-hud .hud-header span, .qrf-hud .hud-header button { color: white; }
+  .qrf-section { margin-bottom: 12px; }
+  .qrf-section-title { color: var(--amber); border-bottom: 1px solid var(--border); margin-bottom: 5px; padding-bottom: 2px; text-transform: uppercase; font-size: 0.68rem; font-weight: bold; }
+  .code-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
+  .c-red { color: var(--red-bright); font-weight: bold; } .c-white { color: #fff; } .c-blue { color: #3498db; } .c-green { color: var(--green); } .c-yellow { color: var(--gold); }
+
+  .note-hud { border: 1px solid var(--amber); width: 300px; }
+  .note-hud .hud-header { background: var(--amber); }
+  .note-hud .hud-header span { color: #000; }
+  .note-hud .hud-header button { color: #000; }
+  .note-hud .hud-body { padding: 0; }
+  .note-hud .hud-body textarea { width: 100%; height: 220px; background: var(--bg); border: none; color: var(--text); font-family: var(--mono); font-size: 0.76rem; line-height: 1.6; padding: 10px 12px; outline: none; resize: none; }
+  .note-hud .hud-body textarea::placeholder { color: var(--text-dim); opacity: 0.4; }
+
+  /* ── MODALS ── */
+  .modal-wrap { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; align-items: center; justify-content: center; }
+  .modal-box { background: var(--bg2); border: 2px solid var(--border); padding: 1.8rem; border-radius: 4px; width: 400px; }
+  .modal-box h3 { font-family: var(--head); margin-bottom: 1.2rem; letter-spacing: 2px; border-bottom: 1px solid var(--red); padding-bottom: 8px; }
+  .tf { display: flex; flex-direction: column; gap: 3px; margin-bottom: 0.8rem; }
+  .tf label { font-size: 0.58rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+  .tf input, .tf select { background: var(--bg3); border: 1px solid var(--border); color: var(--text); font-family: var(--mono); padding: 6px; outline: none; border-radius: 2px; }
+  .tf input:focus, .tf select:focus { border-color: var(--red); }
+  .btn-add { background: var(--red); color: #fff; border: none; font-family: var(--head); font-weight: 700; padding: 8px 15px; cursor: pointer; text-transform: uppercase; border-radius: 2px; width: 100%; }
+  .btn-add:hover { background: var(--red-bright); }
+
+  /* empty state */
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--text-dim); }
+  .empty-state p { font-family: var(--head); font-size: 0.7rem; letter-spacing: 3px; text-transform: uppercase; margin-top: 8px; }
+</style>
 </head>
 <body>
 
+<!-- SIDEBAR -->
 <div class="sidebar">
-    <button class="btn-qrf" onclick="toggleQRF()">QRF</button>
-    <button class="btn-qrf" onclick="toggleNotepad()" style="margin-top:8px; background:var(--bg3);">NOTE</button>
+  <button class="btn-side red" onclick="toggleQRF()" title="Quick Reference Codes">QRF</button>
+  <button class="btn-side dim" onclick="toggleNotepad()" title="Notepad" id="btnNote">NOTE</button>
 </div>
 
+<!-- APP -->
 <div class="app-container">
-    <header>
-        <div class="hdr-left">
-            <div class="frnsw-badge">FRNSW</div>
-            <button class="btn-ui btn-new" onclick="createNewIncident()">+ New</button>
-            <button class="btn-ui btn-edit" onclick="openEditModal()">Manage</button>
-        </div>
-        <div id="incTabStrip" class="inc-tab-strip"></div>
-        <div id="clock" style="font-family: var(--mono); color: var(--amber); font-size: 1.1rem;">00:00:00</div>
-    </header>
 
-    <div class="stats-strip">
-        <div class="stat"><div class="stat-num" id="stat-responding">0</div><div class="stat-label">Responding</div></div>
-        <div class="stat"><div class="stat-num" id="stat-scene">0</div><div class="stat-label">On Scene</div></div>
-        <div class="stat"><div class="stat-num" id="stat-returning">0</div><div class="stat-label">Returning</div></div>
-        <div class="stat"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total</div></div>
+  <!-- HEADER -->
+  <header>
+    <div class="hdr-left">
+      <div class="frnsw-badge">FRNSW</div>
+      <button class="btn-ui btn-new" onclick="createNewIncident()">+ New Incident</button>
+    </div>
+    <div id="incTabStrip" class="inc-tab-strip"></div>
+    <div id="clock">00:00:00</div>
+  </header>
+
+  <!-- STATS -->
+  <div class="stats-strip">
+    <div class="stat"><div class="stat-num" id="stat-responding">0</div><div class="stat-label">Responding</div></div>
+    <div class="stat"><div class="stat-num" id="stat-scene">0</div><div class="stat-label">On Scene</div></div>
+    <div class="stat"><div class="stat-num" id="stat-returning">0</div><div class="stat-label">Returning</div></div>
+    <div class="stat"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total Assigned</div></div>
+  </div>
+
+  <!-- PANELS -->
+  <div class="panels">
+
+    <!-- FLEET (left) -->
+    <div class="fleet-panel">
+      <div class="panel-header">
+        <span class="panel-title">Fleet / Unit Roster</span>
+        <span id="fleetCount" style="font-family:var(--mono);font-size:0.68rem;color:var(--text-dim);">0 units</span>
+      </div>
+      <div class="fleet-list" id="fleetList">
+        <div class="empty-state"><p>No units — add below</p></div>
+      </div>
+      <!-- Add unit form -->
+      <div class="fleet-add">
+        <div class="fleet-add-row">
+          <input type="text" id="fCS" placeholder="Callsign" style="text-transform:uppercase;" maxlength="14">
+        </div>
+        <div class="fleet-add-row">
+          <input type="text" id="fType" placeholder="Type (Pumper, Tanker…)" style="flex:1">
+        </div>
+        <button class="btn-create-unit" onclick="createUnit()">+ Create Unit</button>
+      </div>
     </div>
 
-    <div class="toolbar" id="toolbar">
-        <div class="tf"><label>Callsign</label><input type="text" id="inCS" placeholder="ZETLAND 1"></div>
-        <div class="tf"><label>Type</label><input type="text" id="inType" placeholder="Pumper"></div>
-        <div class="tf">
-            <label>Role</label>
-            <select id="inIsCmd">
-                <option value="false">Standard</option>
-                <option value="true">IC / Command</option>
-            </select>
+    <!-- INCIDENT BOARD (right) -->
+    <div class="incident-panel">
+      <div class="toolbar" id="toolbar" style="justify-content:space-between;">
+        <span class="toolbar-label" id="toolbarLabel">Select or create an incident</span>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <button class="btn-ui" onclick="openEditModal()" style="background:var(--bg3);color:var(--text-dim);border:1px solid var(--border);">Manage Incident</button>
         </div>
-        <button class="btn-add" onclick="addUnit()">Assign Unit</button>
-    </div>
+      </div>
 
-    <div class="main-content" id="main-content">
-        <table id="unit-table">
+      <div class="main-content" id="main-content">
+        <div id="unit-container">
+          <table>
             <thead>
-                <tr>
-                    <th>Callsign</th>
-                    <th>Type</th>
-                    <th>Status</th>
-                    <th>Sector / Notes</th>
-                    <th>Actions</th>
-                </tr>
+              <tr>
+                <th>Callsign</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Sector / Location</th>
+                <th>Actions</th>
+              </tr>
             </thead>
-            <tbody id="unitTableBody"></tbody>
-        </table>
+            <tbody id="unitTable"></tbody>
+          </table>
+        </div>
+      </div>
     </div>
+
+  </div><!-- /panels -->
+</div><!-- /app-container -->
+
+<!-- QRF HUD -->
+<div id="qrfHud" class="hud qrf-hud">
+  <div class="hud-header" id="qrfHeader">
+    <span>QRF / CODES</span>
+    <div style="display:flex;gap:8px;">
+      <button onclick="toggleQRFBody()" title="Minimise">_</button>
+      <button onclick="toggleQRF()">✕</button>
+    </div>
+  </div>
+  <div class="hud-body" id="qrfBody">
+    <div class="qrf-section">
+      <div class="qrf-section-title">Priority Codes</div>
+      <div class="code-row c-red"><span>RED RED RED</span><span>Urgent/Emergency</span></div>
+      <div class="code-row c-white"><span>WHITE</span><span>New Incident</span></div>
+      <div class="code-row c-blue"><span>BLUE</span><span>Incident Dispatch</span></div>
+      <div class="code-row c-green"><span>GREEN</span><span>Stop Message</span></div>
+      <div class="code-row c-yellow"><span>YELLOW</span><span>Non-Inc/Admin</span></div>
+    </div>
+    <div class="qrf-section">
+      <div class="qrf-section-title">Status Codes</div>
+      <div class="code-row"><span>1</span><span>Responding</span></div>
+      <div class="code-row"><span>2</span><span>Call Off</span></div>
+      <div class="code-row"><span>3</span><span>On Scene</span></div>
+      <div class="code-row"><span>4</span><span>Available</span></div>
+      <div class="code-row"><span>5</span><span>Returned to Stn</span></div>
+      <div class="code-row"><span>6</span><span>RFS Area</span></div>
+      <div class="code-row"><span>7</span><span>Unavailable</span></div>
+    </div>
+  </div>
 </div>
 
-<div id="qrfHud" class="qrf-hud">
-    <div class="qrf-header" id="qrfHeader">
-        <span>QRF / CODES</span>
-        <button onclick="toggleQRF()" style="background:none; border:none; color:white; cursor:pointer;">✕</button>
+<!-- NOTEPAD HUD -->
+<div id="notepadHud" class="hud note-hud" style="top:90px;left:380px;">
+  <div class="hud-header" id="notepadHeader">
+    <span>📝 NOTEPAD</span>
+    <div style="display:flex;gap:8px;">
+      <button onclick="toggleNotepadBody()" title="Minimise">_</button>
+      <button onclick="toggleNotepad()">✕</button>
     </div>
-    <div class="qrf-body">
-        <p style="color:var(--amber); margin-bottom:5px;">STATUS CODES</p>
-        <div>1: Responding | 3: On Scene</div>
-        <div>4: Available | 7: Unavailable</div>
-    </div>
+  </div>
+  <div class="hud-body" id="notepadBody">
+    <textarea id="notepadText" placeholder="General notes, reminders, sector comms, freqs…" oninput="saveNotepad()"></textarea>
+  </div>
+  <div class="hud-footer">
+    <span>Auto-saved</span>
+    <button onclick="clearNotepad()">Clear</button>
+  </div>
 </div>
 
-<div id="notepadHud" class="notepad-hud">
-    <div class="notepad-header" id="notepadHeader">
-        <span>📝 NOTEPAD</span>
-        <button onclick="toggleNotepad()" style="background:none; border:none; color:black; cursor:pointer;">✕</button>
-    </div>
-    <div class="notepad-body">
-        <textarea id="notepadText" placeholder="Scratchpad..." oninput="localStorage.setItem('frnsw_notepad', this.value)"></textarea>
-    </div>
-</div>
-
+<!-- EDIT INCIDENT MODAL -->
 <div class="modal-wrap" id="editModal">
-    <div class="modal-box">
-        <h3 style="font-family:var(--head); margin-bottom:1rem; color:var(--red);">INCIDENT MANAGEMENT</h3>
-        <div class="tf" style="margin-bottom:1rem;"><label>Name</label><input type="text" id="editName" style="width:100%"></div>
-        <div class="tf" style="margin-bottom:1rem;">
-            <label>Status</label>
-            <select id="editStatus" style="width:100%">
-                <option value="active">Active</option>
-                <option value="suspended">Suspended</option>
-            </select>
-        </div>
-        <div style="display:flex; gap:10px;">
-            <button onclick="saveEdit()" class="btn-add" style="flex:1">Save</button>
-            <button onclick="deleteCurrentIncident()" class="btn-add" style="flex:1; background:var(--bg3);">Delete</button>
-            <button onclick="closeEditModal()" class="btn-add" style="flex:1; background:var(--bg3);">Cancel</button>
-        </div>
+  <div class="modal-box">
+    <h3>Incident Management</h3>
+    <div class="tf"><label>Incident ID / Name</label><input type="text" id="editName" style="width:100%"></div>
+    <div class="tf" style="margin-bottom:1.2rem;"><label>Operational Status</label>
+      <select id="editStatus" style="width:100%">
+        <option value="active">Active (Operational)</option>
+        <option value="suspended">Suspended (On Hold)</option>
+      </select>
     </div>
+    <button onclick="saveEdit()" class="btn-add" style="margin-bottom:8px;">Apply Changes</button>
+    <div style="display:flex;gap:8px;">
+      <button onclick="closeEditModal()" style="flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px;cursor:pointer;font-family:var(--head);border-radius:2px;">Cancel</button>
+      <button onclick="deleteCurrentIncident()" style="flex:1;background:var(--red);border:none;color:white;padding:9px;cursor:pointer;font-family:var(--head);font-weight:bold;border-radius:2px;">Delete Incident</button>
+    </div>
+  </div>
 </div>
 
+<!-- LOG -->
 <div class="log" id="log"></div>
 
 <script>
-    let store = JSON.parse(localStorage.getItem('frnsw_v3') || '{"activeId": null, "incidents": []}');
-    const STATUSES = ['responding', 'scene', 'returning', 'available'];
-
-    // STORAGE HELPERS
-    function save() { localStorage.setItem('frnsw_v3', JSON.stringify(store)); }
-    function getActive() { return store.incidents.find(i => i.id === store.activeId); }
-
-    // HUD DRAGGING
-    function makeDraggable(el, handle) {
-        let dragging = false, ox = 0, oy = 0;
-        handle.addEventListener('mousedown', e => {
-            dragging = true;
-            ox = el.offsetLeft - e.clientX;
-            oy = el.offsetTop - e.clientY;
-        });
-        document.addEventListener('mouseup', () => dragging = false);
-        document.addEventListener('mousemove', e => {
-            if (dragging) { el.style.left = (e.clientX + ox) + 'px'; el.style.top = (e.clientY + oy) + 'px'; }
-        });
+// ══════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════
+var store = (function() {
+  try {
+    var s = JSON.parse(localStorage.getItem('frnsw_v4') || 'null');
+    if (s && Array.isArray(s.incidents)) {
+      // normalise IDs to numbers
+      s.incidents.forEach(function(i) {
+        i.id = Number(i.id);
+        if (!Array.isArray(i.units)) i.units = [];
+        if (!Array.isArray(i.logs))  i.logs  = [];
+        i.units.forEach(function(u) { u.id = Number(u.id); u.fleetId = Number(u.fleetId); });
+      });
+      s.activeId = s.activeId ? Number(s.activeId) : null;
+      if (!Array.isArray(s.fleet)) s.fleet = [];
+      s.fleet.forEach(function(u) { u.id = Number(u.id); });
+      return s;
     }
-    makeDraggable(document.getElementById('qrfHud'), document.getElementById('qrfHeader'));
-    makeDraggable(document.getElementById('notepadHud'), document.getElementById('notepadHeader'));
+  } catch(e) {}
+  return { activeId: null, incidents: [], fleet: [] };
+})();
 
-    function toggleQRF() { const h = document.getElementById('qrfHud'); h.style.display = (h.style.display === 'flex' ? 'none' : 'flex'); }
-    function toggleNotepad() { const h = document.getElementById('notepadHud'); h.style.display = (h.style.display === 'flex' ? 'none' : 'flex'); }
+var STATUSES = ['responding', 'scene', 'returning', 'available'];
 
-    // INCIDENT MANAGEMENT
-    function createNewIncident() {
-        const name = prompt("Incident Identifier:");
-        if (!name) return;
-        const newInc = {
-            id: Date.now(),
-            name: name.toUpperCase(),
-            units: [],
-            logs: [{ts: new Date().toLocaleTimeString(), msg: "Incident Created"}],
-            status: 'active'
-        };
-        store.incidents.push(newInc);
-        store.activeId = newInc.id;
-        save(); render();
+// ══════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════
+function save() { localStorage.setItem('frnsw_v4', JSON.stringify(store)); }
+function getActive() { return store.incidents.find(function(i) { return i.id === store.activeId; }) || null; }
+function ts() { return new Date().toLocaleTimeString(); }
+function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// Is this fleet unit currently assigned to ANY incident?
+function isAssigned(fleetId) {
+  fleetId = Number(fleetId);
+  return store.incidents.some(function(i) {
+    return i.units.some(function(u) { return u.fleetId === fleetId; });
+  });
+}
+
+// Which incident is a fleet unit assigned to?
+function assignedTo(fleetId) {
+  fleetId = Number(fleetId);
+  for (var i = 0; i < store.incidents.length; i++) {
+    if (store.incidents[i].units.some(function(u) { return u.fleetId === fleetId; })) {
+      return store.incidents[i];
     }
+  }
+  return null;
+}
 
-    function switchIncident(id) { store.activeId = id; save(); render(); }
+// ══════════════════════════════════════════
+//  DRAGGABLE
+// ══════════════════════════════════════════
+function makeDraggable(el, handle) {
+  var dragging = false, ox = 0, oy = 0;
+  handle.addEventListener('mousedown', function(e) {
+    dragging = true; ox = el.offsetLeft - e.clientX; oy = el.offsetTop - e.clientY; e.preventDefault();
+  });
+  document.addEventListener('mouseup', function() { dragging = false; });
+  document.addEventListener('mousemove', function(e) {
+    if (!dragging) return;
+    el.style.left = Math.max(0, e.clientX + ox) + 'px';
+    el.style.top  = Math.max(0, e.clientY + oy) + 'px';
+  });
+}
+makeDraggable(document.getElementById('qrfHud'),     document.getElementById('qrfHeader'));
+makeDraggable(document.getElementById('notepadHud'), document.getElementById('notepadHeader'));
 
-    function openEditModal() {
-        const inc = getActive();
-        if (!inc) return;
-        document.getElementById('editName').value = inc.name;
-        document.getElementById('editStatus').value = inc.status;
-        document.getElementById('editModal').style.display = 'flex';
-    }
+// ══════════════════════════════════════════
+//  QRF
+// ══════════════════════════════════════════
+function toggleQRF() {
+  var h = document.getElementById('qrfHud');
+  h.style.display = (h.style.display === 'flex') ? 'none' : 'flex';
+}
+function toggleQRFBody() {
+  var b = document.getElementById('qrfBody');
+  b.style.display = (b.style.display === 'none') ? 'block' : 'none';
+}
 
-    function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
+// ══════════════════════════════════════════
+//  NOTEPAD
+// ══════════════════════════════════════════
+document.getElementById('notepadText').value = localStorage.getItem('frnsw_notepad') || '';
+function toggleNotepad() {
+  var h = document.getElementById('notepadHud');
+  var open = h.style.display !== 'flex';
+  h.style.display = open ? 'flex' : 'none';
+  document.getElementById('btnNote').classList.toggle('active', open);
+}
+function toggleNotepadBody() {
+  var b = document.getElementById('notepadBody');
+  b.style.display = (b.style.display === 'none') ? 'flex' : 'none';
+}
+function saveNotepad() { localStorage.setItem('frnsw_notepad', document.getElementById('notepadText').value); }
+function clearNotepad() {
+  if (!confirm('Clear notepad?')) return;
+  document.getElementById('notepadText').value = '';
+  localStorage.removeItem('frnsw_notepad');
+}
 
-    function saveEdit() {
-        const inc = getActive();
-        inc.name = document.getElementById('editName').value.toUpperCase();
-        inc.status = document.getElementById('editStatus').value;
-        save(); render(); closeEditModal();
-    }
+// ══════════════════════════════════════════
+//  FLEET
+// ══════════════════════════════════════════
+function createUnit() {
+  var cs = document.getElementById('fCS').value.trim().toUpperCase();
+  if (!cs) { document.getElementById('fCS').focus(); return; }
+  if (store.fleet.find(function(u) { return u.cs === cs; })) {
+    alert('A unit with callsign ' + cs + ' already exists in the fleet.');
+    return;
+  }
+  var unit = {
+    id:   Date.now(),
+    cs:   cs,
+    type: document.getElementById('fType').value.trim().toUpperCase() || 'APPLIANCE'
+  };
+  store.fleet.push(unit);
+  save();
+  document.getElementById('fCS').value   = '';
+  document.getElementById('fType').value = '';
+  document.getElementById('fCS').focus();
+  renderFleet();
+}
 
-    function deleteCurrentIncident() {
-        if(!confirm("Delete this incident and all data?")) return;
-        store.incidents = store.incidents.filter(i => i.id !== store.activeId);
-        store.activeId = store.incidents.length ? store.incidents[0].id : null;
-        save(); render(); closeEditModal();
-    }
+function deleteFleetUnit(id) {
+  id = Number(id);
+  var unit = store.fleet.find(function(u) { return u.id === id; });
+  if (!unit) return;
+  if (isAssigned(id)) {
+    alert(unit.cs + ' is currently assigned to an incident. Remove it from the incident first.');
+    return;
+  }
+  if (!confirm('Remove ' + unit.cs + ' from fleet?')) return;
+  store.fleet = store.fleet.filter(function(u) { return u.id !== id; });
+  save();
+  renderFleet();
+}
 
-    // UNIT OPERATIONS
-    function addUnit() {
-        const inc = getActive();
-        if (!inc || inc.status === 'suspended') return;
-        const cs = document.getElementById('inCS').value.toUpperCase();
-        if (!cs) return;
-        inc.units.push({
-            id: Date.now(),
-            cs: cs,
-            type: document.getElementById('inType').value || 'APPLIANCE',
-            status: 'responding',
-            location: '',
-            isCmd: document.getElementById('inIsCmd').value === 'true'
-        });
-        inc.logs.unshift({ts: new Date().toLocaleTimeString(), msg: `${cs} assigned.`});
-        document.getElementById('inCS').value = '';
-        save(); render();
-    }
+function assignUnitToIncident(fleetId) {
+  fleetId = Number(fleetId);
+  var inc = getActive();
+  if (!inc) { alert('Select or create an incident first.'); return; }
+  if (inc.status === 'suspended') { alert('This incident is suspended.'); return; }
+  var fu = store.fleet.find(function(u) { return u.id === fleetId; });
+  if (!fu) return;
+  if (isAssigned(fleetId)) {
+    var existing = assignedTo(fleetId);
+    alert(fu.cs + ' is already assigned to ' + (existing ? existing.name : 'another incident') + '.');
+    return;
+  }
+  var unit = {
+    id:       Date.now(),
+    fleetId:  fleetId,
+    cs:       fu.cs,
+    type:     fu.type,
+    status:   'responding',
+    location: '',
+    isCmd:    false,
+    ts:       ts()
+  };
+  inc.units.push(unit);
+  logMsg(fu.cs + ' assigned to ' + inc.name);
+  save();
+  render();
+}
 
-    function setStatus(unitId, status) {
-        const inc = getActive();
-        const unit = inc.units.find(u => u.id === unitId);
-        unit.status = status;
-        inc.logs.unshift({ts: new Date().toLocaleTimeString(), msg: `${unit.cs} is now ${status}.`});
-        save(); render();
-    }
+function renderFleet() {
+  var list = document.getElementById('fleetList');
+  document.getElementById('fleetCount').textContent = store.fleet.length + ' unit' + (store.fleet.length !== 1 ? 's' : '');
 
-    function updateNote(unitId, text) {
-        const inc = getActive();
-        const unit = inc.units.find(u => u.id === unitId);
-        unit.location = text;
-        save(); // Real-time saving
-    }
+  if (!store.fleet.length) {
+    list.innerHTML = '<div class="empty-state"><p>No units — add below</p></div>';
+    return;
+  }
 
-    function toggleCommand(unitId) {
-        const inc = getActive();
-        const unit = inc.units.find(u => u.id === unitId);
-        unit.isCmd = !unit.isCmd;
-        save(); render();
-    }
+  var inc = getActive();
+  list.innerHTML = store.fleet.map(function(u) {
+    var busy = isAssigned(u.id);
+    var whoInc = busy ? assignedTo(u.id) : null;
+    var canAssign = !busy && inc && inc.status !== 'suspended';
+    return '<div class="fleet-item' + (busy ? ' assigned' : '') + '">'
+      + '<div style="flex:1;min-width:0;">'
+      +   '<div class="fleet-cs">' + esc(u.cs) + '</div>'
+      +   '<div class="fleet-type">' + esc(u.type) + (whoInc ? ' · <span style="color:var(--amber)">' + esc(whoInc.name) + '</span>' : '') + '</div>'
+      + '</div>'
+      + '<span class="fleet-badge ' + (busy ? 'busy' : 'free') + '">' + (busy ? 'ASSIGNED' : 'AVAIL') + '</span>'
+      + '<button class="btn-assign" onclick="assignUnitToIncident(' + u.id + ')" '
+      +   (canAssign ? '' : 'disabled') + '>'
+      +   (busy ? 'IN USE' : 'ASSIGN')
+      + '</button>'
+      + '<button class="btn-del-unit" onclick="deleteFleetUnit(' + u.id + ')" title="Remove from fleet">✕</button>'
+      + '</div>';
+  }).join('');
+}
 
-    function removeUnit(unitId) {
-        const inc = getActive();
-        inc.units = inc.units.filter(u => u.id !== unitId);
-        save(); render();
-    }
+// ══════════════════════════════════════════
+//  INCIDENTS
+// ══════════════════════════════════════════
+function createNewIncident() {
+  var name = prompt('Enter Incident Identifier (e.g. P25-12345):');
+  if (!name || !name.trim()) return;
+  var inc = {
+    id:     Date.now(),
+    name:   name.trim().toUpperCase(),
+    units:  [],
+    logs:   [{ ts: ts(), msg: 'Incident created' }],
+    status: 'active'
+  };
+  store.incidents.push(inc);
+  store.activeId = inc.id;
+  save();
+  render();
+}
 
-    // RENDER UI
-    function render() {
-        const strip = document.getElementById('incTabStrip');
-        const body = document.getElementById('unitTableBody');
-        const main = document.getElementById('main-content');
-        const inc = getActive();
+function switchIncident(id) {
+  store.activeId = Number(id);
+  save();
+  render();
+}
 
-        // Tabs
-        strip.innerHTML = store.incidents.map(i => `
-            <div class="inc-tab ${i.id === store.activeId ? 'active' : ''}" onclick="switchIncident(${i.id})">
-                <div class="inc-tab-name">${i.name}</div>
-                <div class="inc-tab-meta">
-                    <span class="inc-tab-dot ${i.status === 'suspended' ? 'suspended' : ''}"></span>
-                    ${i.status}
-                </div>
-            </div>
-        `).join('');
+function deleteIncidentById(id) {
+  id = Number(id);
+  var inc = store.incidents.find(function(i) { return i.id === id; });
+  if (!inc) return;
+  if (!confirm('Delete incident ' + inc.name + ' and release all ' + inc.units.length + ' unit(s)?\nThis cannot be undone.')) return;
+  store.incidents = store.incidents.filter(function(i) { return i.id !== id; });
+  if (store.activeId === id) {
+    store.activeId = store.incidents.length ? store.incidents[0].id : null;
+  }
+  save();
+  render();
+}
 
-        if (!inc) {
-            body.innerHTML = '<tr><td colspan="5" style="text-align:center; padding-top:40px;">No incidents active.</td></tr>';
-            return;
-        }
+function openEditModal() {
+  var inc = getActive();
+  if (!inc) { alert('No active incident selected.'); return; }
+  document.getElementById('editName').value   = inc.name;
+  document.getElementById('editStatus').value = inc.status || 'active';
+  document.getElementById('editModal').style.display = 'flex';
+}
+function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
+function saveEdit() {
+  var inc = getActive(); if (!inc) return;
+  var n = document.getElementById('editName').value.trim().toUpperCase();
+  var s = document.getElementById('editStatus').value;
+  if (!n) return;
+  inc.name = n; inc.status = s;
+  logMsg('Incident updated: ' + n + ' — ' + s.toUpperCase());
+  save(); render(); closeEditModal();
+}
+function deleteCurrentIncident() { closeEditModal(); if (store.activeId) deleteIncidentById(store.activeId); }
 
-        // Stats
-        document.getElementById('stat-total').textContent = inc.units.length;
-        STATUSES.filter(s => s !== 'available').forEach(s => {
-            document.getElementById('stat-'+s).textContent = inc.units.filter(u => u.status === s).length;
-        });
+// ══════════════════════════════════════════
+//  INCIDENT UNITS
+// ══════════════════════════════════════════
+function setStatus(unitId, status) {
+  unitId = Number(unitId);
+  var inc = getActive(); if (!inc || inc.status === 'suspended') return;
+  var unit = inc.units.find(function(u) { return u.id === unitId; }); if (!unit) return;
+  var old = unit.status;
+  unit.status = status; unit.ts = ts();
+  logMsg(unit.cs + ': ' + old.toUpperCase() + ' → ' + status.toUpperCase());
+  save(); render();
+}
 
-        // Suspended Overlay
-        const existing = main.querySelector('.suspended-overlay');
-        if (existing) existing.remove();
-        if (inc.status === 'suspended') {
-            const div = document.createElement('div');
-            div.className = 'suspended-overlay';
-            div.innerHTML = '<div class="suspended-msg">Operations Paused</div>';
-            main.appendChild(div);
-        }
+function toggleCommand(unitId) {
+  unitId = Number(unitId);
+  var inc = getActive(); if (!inc || inc.status === 'suspended') return;
+  var unit = inc.units.find(function(u) { return u.id === unitId; }); if (!unit) return;
+  unit.isCmd = !unit.isCmd;
+  logMsg(unit.cs + ' command role ' + (unit.isCmd ? 'ASSIGNED' : 'REMOVED'));
+  save(); render();
+}
 
-        // Table
-        body.innerHTML = inc.units.sort((a,b) => b.isCmd - a.isCmd).map(u => `
-            <tr class="${u.isCmd ? 'command-row' : ''}">
-                <td><div style="font-weight:bold;">${u.isCmd ? '<span class="cmd-badge">IC</span>' : ''}${u.cs}</div></td>
-                <td style="color:var(--blue); font-size:0.75rem;">${u.type}</td>
-                <td>
-                    <div style="display:flex; gap:3px;">
-                        ${STATUSES.map(s => `<button class="sbtn ${u.status === s ? 'active' : ''}" style="--color: var(--${s === 'responding' ? 'amber' : s === 'scene' ? 'red-bright' : 'blue'})" onclick="setStatus(${u.id}, '${s}')">${s.charAt(0).toUpperCase()}</button>`).join('')}
-                    </div>
-                </td>
-                <td><input class="tf" style="width:100%; background:transparent; border:none; border-bottom:1px solid var(--border);" value="${u.location}" oninput="updateNote(${u.id}, this.value)"></td>
-                <td>
-                    <button class="btn-cmd ${u.isCmd ? 'is-cmd' : ''}" onclick="toggleCommand(${u.id})">CMD</button>
-                    <button class="btn-cmd" onclick="removeUnit(${u.id})">✕</button>
-                </td>
-            </tr>
-        `).join('');
+function updateLocation(unitId, val) {
+  unitId = Number(unitId);
+  var inc = getActive(); if (!inc) return;
+  var unit = inc.units.find(function(u) { return u.id === unitId; }); if (!unit) return;
+  unit.location = val; save();
+}
 
-        document.getElementById('log').innerHTML = inc.logs.map(l => `<div class="log-entry"><span class="log-ts">[${l.ts}]</span> ${l.msg}</div>`).join('');
-    }
+function removeUnit(unitId) {
+  unitId = Number(unitId);
+  var inc = getActive(); if (!inc) return;
+  var unit = inc.units.find(function(u) { return u.id === unitId; }); if (!unit) return;
+  if (!confirm('Release ' + unit.cs + ' from ' + inc.name + '?')) return;
+  inc.units = inc.units.filter(function(u) { return u.id !== unitId; });
+  logMsg(unit.cs + ' released from incident');
+  save(); render();
+}
 
-    setInterval(() => { document.getElementById('clock').textContent = new Date().toLocaleTimeString(); }, 1000);
-    document.getElementById('notepadText').value = localStorage.getItem('frnsw_notepad') || '';
-    render();
+function logMsg(msg) {
+  var inc = getActive(); if (!inc) return;
+  inc.logs.unshift({ ts: ts(), msg: msg });
+}
+
+// ══════════════════════════════════════════
+//  RENDER
+// ══════════════════════════════════════════
+function renderTabs() {
+  var strip = document.getElementById('incTabStrip');
+  if (!store.incidents.length) {
+    strip.innerHTML = '<div style="font-family:var(--head);font-size:0.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);display:flex;align-items:center;padding:0 10px;">No incidents — click + New Incident</div>';
+    return;
+  }
+  strip.innerHTML = store.incidents.map(function(i) {
+    var active = (i.id === store.activeId);
+    var susp   = (i.status === 'suspended');
+    var cmd    = i.units.find(function(u) { return u.isCmd; });
+    return '<div class="inc-tab' + (active ? ' active' : '') + '" onclick="switchIncident(' + i.id + ')">'
+      + '<button class="inc-tab-close" onclick="event.stopPropagation();deleteIncidentById(' + i.id + ')">✕</button>'
+      + '<div class="inc-tab-name">' + esc(i.name) + '</div>'
+      + '<div class="inc-tab-meta">'
+      +   '<span class="inc-tab-dot' + (susp ? ' suspended' : '') + '"></span>'
+      +   '<span>' + (susp ? 'SUSPENDED' : 'ACTIVE') + '</span>'
+      +   '&nbsp;<span style="font-family:var(--mono);font-size:0.55rem;">' + i.units.length + 'u</span>'
+      + '</div>'
+      + (cmd ? '<div class="inc-tab-ic">IC: ' + esc(cmd.cs) + '</div>' : '')
+      + '</div>';
+  }).join('');
+}
+
+function render() {
+  renderTabs();
+  renderFleet();
+
+  var inc       = getActive();
+  var main      = document.getElementById('main-content');
+  var container = document.getElementById('unit-container');
+  var toolbar   = document.getElementById('toolbar');
+  var label     = document.getElementById('toolbarLabel');
+
+  if (!inc) {
+    document.getElementById('unitTable').innerHTML =
+      '<tr><td colspan="5" style="text-align:center;padding:60px;color:var(--text-dim);font-family:var(--head);letter-spacing:2px;text-transform:uppercase;font-size:0.7rem;">No active incident — create one above or select a tab</td></tr>';
+    ['responding','scene','returning','total'].forEach(function(s) {
+      document.getElementById('stat-' + s).textContent = '0';
+    });
+    document.getElementById('log').innerHTML = '';
+    label.textContent = 'No incident selected';
+    return;
+  }
+
+  label.textContent = inc.name + (inc.status === 'suspended' ? '  [SUSPENDED]' : '');
+
+  var susp = (inc.status === 'suspended');
+  container.classList.toggle('incident-suspended', susp);
+
+  var oldOv = main.querySelector('.suspended-overlay');
+  if (oldOv) oldOv.remove();
+  if (susp) {
+    var ov = document.createElement('div');
+    ov.className = 'suspended-overlay';
+    ov.innerHTML = '<div class="suspended-msg">Operations Paused — Incident Suspended</div>';
+    main.appendChild(ov);
+  }
+
+  document.getElementById('stat-total').textContent = inc.units.length;
+  ['responding','scene','returning'].forEach(function(s) {
+    document.getElementById('stat-' + s).textContent =
+      inc.units.filter(function(u) { return u.status === s; }).length;
+  });
+
+  if (!inc.units.length) {
+    document.getElementById('unitTable').innerHTML =
+      '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-dim);font-family:var(--head);letter-spacing:2px;text-transform:uppercase;font-size:0.7rem;">No units assigned — use the fleet panel to assign units</td></tr>';
+  } else {
+    var sorted = inc.units.slice().sort(function(a,b) { return (b.isCmd ? 1 : 0) - (a.isCmd ? 1 : 0); });
+    document.getElementById('unitTable').innerHTML = sorted.map(function(u) {
+      var btns = STATUSES.map(function(s) {
+        var col = s==='responding' ? 'amber' : s==='scene' ? 'red-bright' : s==='returning' ? 'blue' : 'green';
+        return '<button class="sbtn' + (u.status===s ? ' active' : '') + '" style="--color:var(--' + col + ')" onclick="setStatus(' + u.id + ',\'' + s + '\')">' + s.toUpperCase() + '</button>';
+      }).join('');
+      var loc = esc(u.location || '');
+      return '<tr class="' + (u.isCmd ? 'command-row' : '') + '">'
+        + '<td><div style="font-family:var(--mono);font-weight:bold;">' + (u.isCmd ? '<span class="cmd-badge">COMMAND</span>' : '') + esc(u.cs) + '</div></td>'
+        + '<td><span style="font-size:0.72rem;color:var(--blue);font-weight:bold;">' + esc(u.type || 'APPLIANCE') + '</span></td>'
+        + '<td><div style="display:flex;gap:3px;flex-wrap:wrap;">' + btns + '</div></td>'
+        + '<td><input style="width:100%;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:0.78rem;padding:3px;outline:none;" placeholder="Sector / Location" value="' + loc + '" onchange="updateLocation(' + u.id + ',this.value)"></td>'
+        + '<td style="white-space:nowrap;">'
+        +   '<button class="btn-cmd ' + (u.isCmd ? 'is-cmd' : '') + '" onclick="toggleCommand(' + u.id + ')">CMD</button> '
+        +   '<button class="btn-cmd" style="color:var(--red-bright);" onclick="removeUnit(' + u.id + ')">✕</button>'
+        + '</td>'
+        + '</tr>';
+    }).join('');
+  }
+
+  document.getElementById('log').innerHTML = inc.logs.map(function(l) {
+    return '<div class="log-entry"><span class="log-ts">[' + l.ts + ']</span> ' + l.msg + '</div>';
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+document.getElementById('fCS').addEventListener('keydown', function(e) { if (e.key === 'Enter') createUnit(); });
+setInterval(function() { document.getElementById('clock').textContent = new Date().toLocaleTimeString(); }, 1000);
+
+if (!store.activeId && store.incidents.length) {
+  store.activeId = store.incidents[0].id;
+}
+render();
 </script>
-
 </body>
 </html>
