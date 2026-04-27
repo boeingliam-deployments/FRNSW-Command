@@ -128,6 +128,7 @@ header{background:var(--bg2);border-bottom:3px solid var(--red);padding:0 1.2rem
 .fleet-add input,.fleet-add select{background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:0.75rem;padding:5px 7px;outline:none;border-radius:2px;width:100%;transition:border-color 0.2s;}
 .fleet-add input:focus,.fleet-add select:focus{border-color:var(--red);}
 .fleet-add select option{background:var(--bg);}
+#fType::-webkit-calendar-picker-indicator{filter:invert(0.5);cursor:pointer;opacity:0.6;}
 .btn-create-unit{width:100%;background:var(--red);color:#fff;border:none;font-family:var(--head);font-weight:700;font-size:0.75rem;letter-spacing:1px;padding:6px;cursor:pointer;text-transform:uppercase;border-radius:2px;transition:background 0.15s;}
 .btn-create-unit:hover{background:var(--red-bright);}
 
@@ -223,6 +224,7 @@ td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,0.04);vertical-alig
     <div class="hdr-left">
       <div class="frnsw-badge">FRNSW</div>
       <button class="btn-ui btn-new" onclick="createNewIncident()">+ New Incident</button>
+      <div id="syncBadge" style="font-family:var(--mono);font-size:0.6rem;font-weight:700;letter-spacing:2px;padding:3px 8px;border-radius:2px;background:#6a7a8a;color:#fff;">LOCAL</div>
     </div>
     <div id="incTabStrip" class="inc-tab-strip"></div>
     <div id="clock">00:00:00</div>
@@ -272,7 +274,29 @@ td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,0.04);vertical-alig
       <div class="fleet-add">
         <div class="fleet-add-row">
           <input type="text" id="fCS" placeholder="Callsign" style="text-transform:uppercase;" maxlength="14">
-          <input type="text" id="fType" placeholder="Type (Pumper…)" style="flex:1">
+        </div>
+        <div class="fleet-add-row">
+          <input type="text" id="fType" list="applianceTypes" placeholder="Appliance type…" style="flex:1;text-transform:uppercase;" autocomplete="off">
+          <datalist id="applianceTypes">
+            <option value="PUMPER">
+            <option value="TANKER">
+            <option value="AERIAL PUMPER">
+            <option value="AERIAL LADDER PLATFORM">
+            <option value="HAZMAT">
+            <option value="RESCUE TENDER">
+            <option value="FOAM TENDER">
+            <option value="COMPRESSED AIR FOAM">
+            <option value="MULTI PURPOSE VEHICLE">
+            <option value="BREATHING APPARATUS TENDER">
+            <option value="COMMAND VEHICLE">
+            <option value="RAPID INTERVENTION VEHICLE">
+            <option value="LIGHT TANKER">
+            <option value="HEAVY TANKER">
+            <option value="BULK WATER TANKER">
+            <option value="FIRE BOAT">
+            <option value="CHAPLAIN VEHICLE">
+            <option value="WELFARE VEHICLE">
+          </datalist>
         </div>
         <div class="fleet-add-row">
           <select id="fTeam" style="flex:1">
@@ -380,10 +404,97 @@ td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,0.04);vertical-alig
 
 <div class="log" id="log"></div>
 
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
 <script>
 // ══════════════════════════════════════════
-//  STATE
+//  FIREBASE CONFIG
 // ══════════════════════════════════════════
+var FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyB-VtnCkkkwh_wX0yshI4j_s_nBluyrwFw",
+  authDomain:        "frnsw-tracker.firebaseapp.com",
+  databaseURL:       "https://frnsw-tracker-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:         "frnsw-tracker",
+  storageBucket:     "frnsw-tracker.firebasestorage.app",
+  messagingSenderId: "154994029424",
+  appId:             "1:154994029424:web:4283b0b48d2020f745d5b5"
+};
+
+var firebaseReady = false;
+var fbDb = null;
+var FB_PATH = 'frnsw/tracker';   // change if you want multiple deployments sharing one DB
+
+try {
+  if (FIREBASE_CONFIG.databaseURL && FIREBASE_CONFIG.databaseURL.indexOf('PASTE') === -1) {
+    firebase.initializeApp(FIREBASE_CONFIG);
+    fbDb = firebase.database();
+    firebaseReady = true;
+
+    // ── REALTIME LISTENER ──
+    // When any other client saves, we get the update instantly
+    fbDb.ref(FB_PATH).on('value', function(snapshot) {
+      var remote = snapshot.val();
+      if (!remote) return;
+      // Merge remote into store — normalise IDs
+      remote.incidents = remote.incidents || [];
+      remote.fleet     = remote.fleet     || [];
+      remote.teams     = remote.teams     || [];
+      remote.incidents.forEach(function(i) {
+        i.id = Number(i.id);
+        if (!Array.isArray(i.units)) i.units = [];
+        if (!Array.isArray(i.logs))  i.logs  = [];
+        i.units.forEach(function(u) { u.id = Number(u.id); u.fleetId = Number(u.fleetId); });
+      });
+      remote.fleet.forEach(function(u) { u.id = Number(u.id); if (!u.status) u.status = 'available'; });
+      remote.teams.forEach(function(t) { t.id = Number(t.id); if (!Array.isArray(t.unitIds)) t.unitIds = []; t.unitIds = t.unitIds.map(Number); });
+      remote.activeId = remote.activeId ? Number(remote.activeId) : null;
+      // Only update if remote is actually different (avoid echo from our own writes)
+      if (JSON.stringify(remote) !== JSON.stringify(store)) {
+        store.incidents = remote.incidents;
+        store.fleet     = remote.fleet;
+        store.teams     = remote.teams;
+        // Don't override activeId — each client tracks their own active incident tab
+        localStorage.setItem('frnsw_v5', JSON.stringify(store));
+        render();
+      }
+    });
+
+    console.log('[FRNSW] Firebase realtime sync active');
+    showSyncBadge('LIVE', '#27ae60');
+  } else {
+    console.log('[FRNSW] Firebase not configured — using local storage only');
+    showSyncBadge('LOCAL', '#6a7a8a');
+  }
+} catch(e) {
+  console.error('[FRNSW] Firebase init failed:', e);
+  showSyncBadge('ERR', '#ff3333');
+}
+
+function fbSave(data) {
+  if (!firebaseReady || !fbDb) return;
+  // Write a clean copy (no activeId — that's per-client)
+  var payload = {
+    incidents: data.incidents,
+    fleet:     data.fleet,
+    teams:     data.teams,
+    updatedAt: Date.now()
+  };
+  fbDb.ref(FB_PATH).set(payload).catch(function(e) {
+    console.error('[FRNSW] Firebase write failed:', e);
+    showSyncBadge('ERR', '#ff3333');
+    setTimeout(function(){ showSyncBadge(firebaseReady?'LIVE':'LOCAL', firebaseReady?'#27ae60':'#6a7a8a'); }, 3000);
+  });
+}
+
+function showSyncBadge(label, color) {
+  var badge = document.getElementById('syncBadge');
+  if (!badge) return;
+  badge.textContent = label;
+  badge.style.background = color;
+}
+</script>
 var store = (function() {
   try {
     var s = JSON.parse(localStorage.getItem('frnsw_v5') || 'null');
@@ -413,7 +524,10 @@ var editingTeamId = null;
 // ══════════════════════════════════════════
 //  HELPERS
 // ══════════════════════════════════════════
-function save() { localStorage.setItem('frnsw_v5', JSON.stringify(store)); }
+function save() {
+  localStorage.setItem('frnsw_v5', JSON.stringify(store));
+  if (typeof fbSave === 'function') fbSave(store);
+}
 function getActive() { return store.incidents.find(function(i) { return i.id === store.activeId; }) || null; }
 function ts() { return new Date().toLocaleTimeString(); }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -696,25 +810,25 @@ function renderFleet() {
 }
 
 function renderFleetItem(u, inc) {
-  var busy     = isAssigned(u.id);
-  var whoInc   = busy ? assignedTo(u.id) : null;
+  var busy      = isAssigned(u.id);
+  var whoInc    = busy ? assignedTo(u.id) : null;
   var canAssign = !busy && inc && inc.status !== 'suspended';
-  var st       = u.status || 'available';
+  var st        = u.status || 'available';
   var statusBtns = FLEET_STATUSES.map(function(s) {
     return '<button class="fsbtn' + (st===s?' fsbtn-'+s:'') + '" onclick="event.stopPropagation();setFleetStatus(' + u.id + ',\'' + s + '\')">' + s.substring(0,4).toUpperCase() + '</button>';
   }).join('');
   return '<div class="fleet-item' + (busy?' assigned':'') + '">'
     + '<div style="flex:1;min-width:0;">'
-    +   '<div style="display:flex;align-items:center;gap:5px;margin-bottom:2px;flex-wrap:wrap;">'
+    +   '<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;">'
     +     '<span class="fleet-cs">' + esc(u.cs) + '</span>'
     +     '<span class="fleet-type">' + esc(u.type) + '</span>'
     +     (whoInc ? '<span style="font-size:0.5rem;color:var(--amber);letter-spacing:1px;">[' + esc(whoInc.name) + ']</span>' : '')
+    +     '<button class="btn-del-unit" onclick="deleteFleetUnit(' + u.id + ')" title="Delete unit" style="margin-left:auto;">🗑</button>'
     +   '</div>'
-    +   '<div class="fleet-status-row">' + statusBtns + '</div>'
-    + '</div>'
-    + '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0;margin-left:5px;">'
-    +   '<button class="btn-assign" onclick="assignUnitToIncident(' + u.id + ')" ' + (canAssign?'':'disabled') + '>' + (busy?'IN USE':'ASSIGN') + '</button>'
-    +   '<button class="btn-del-unit" onclick="deleteFleetUnit(' + u.id + ')" title="Remove">✕</button>'
+    +   '<div style="display:flex;align-items:center;gap:4px;">'
+    +     '<div class="fleet-status-row" style="flex:1;">' + statusBtns + '</div>'
+    +     '<button class="btn-assign" onclick="assignUnitToIncident(' + u.id + ')" ' + (canAssign?'':'disabled') + ' style="flex-shrink:0;">' + (busy?'IN USE':'ASSIGN') + '</button>'
+    +   '</div>'
     + '</div>'
     + '</div>';
 }
