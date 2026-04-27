@@ -870,10 +870,23 @@ function setStatus(unitId, status) {
   logMsg(unit.cs+': '+old.toUpperCase()+' → '+status.toUpperCase()); save(); render();
 }
 function toggleCommand(unitId) {
-  unitId=Number(unitId);
-  var inc=getActive(); if(!inc||inc.status==='suspended') return;
-  var unit=inc.units.find(function(u){return u.id===unitId;}); if(!unit) return;
-  unit.isCmd=!unit.isCmd; logMsg(unit.cs+' command role '+(unit.isCmd?'ASSIGNED':'REMOVED')); save(); render();
+  unitId = Number(unitId);
+  var inc = getActive(); if(!inc||inc.status==='suspended') return;
+  var unit = inc.units.find(function(u){return u.id===unitId;}); if(!unit) return;
+  if (!unit.isCmd) {
+    // Assigning command — prompt for IC name
+    var icName = prompt('Enter IC name for ' + unit.cs + ':', unit.icName || '');
+    if (icName === null) return; // cancelled
+    unit.isCmd = true;
+    unit.icName = icName.trim();
+    logMsg(unit.cs + ' assigned COMMAND' + (unit.icName ? ' — IC: ' + unit.icName : ''));
+  } else {
+    // Removing command
+    unit.isCmd = false;
+    unit.icName = '';
+    logMsg(unit.cs + ' COMMAND role removed');
+  }
+  save(); render();
 }
 function updateLocation(unitId, val) {
   unitId=Number(unitId);
@@ -933,25 +946,49 @@ function renderIncidentRow(u) {
   var fu=store.fleet.find(function(f){return f.id===u.fleetId;});
   var teamTag='';
   if(fu&&fu.teamId){var t=store.teams.find(function(x){return x.id===fu.teamId;});if(t) teamTag='<span style="font-size:0.52rem;color:#bb8fce;margin-left:6px;font-family:var(--head);letter-spacing:1px;">'+esc(t.name)+'</span>';}
+  var cmdBadge='';
+  if(u.isCmd){
+    cmdBadge='<span class="cmd-badge">CMD</span>';
+    if(u.icName) cmdBadge+='<span style="font-size:0.6rem;color:var(--gold);font-family:var(--mono);margin-left:4px;">'+esc(u.icName)+'</span>';
+  }
+  var cmdBtn = u.isCmd
+    ? '<button class="btn-cmd is-cmd" onclick="editIcName('+u.id+')" title="Edit IC name" style="font-size:0.6rem;">✎&nbsp;IC</button> <button class="btn-cmd" style="color:var(--red-bright);font-size:0.6rem;" onclick="toggleCommand('+u.id+')" title="Remove command">✕CMD</button>'
+    : '<button class="btn-cmd" onclick="toggleCommand('+u.id+')" title="Assign command">CMD</button>';
   return '<tr class="'+(u.isCmd?'command-row':'')+'">'
-    +'<td><div style="font-family:var(--mono);font-weight:bold;display:flex;align-items:center;">'+(u.isCmd?'<span class="cmd-badge">CMD</span>':'')+esc(u.cs)+teamTag+'</div></td>'
+    +'<td><div style="font-family:var(--mono);font-weight:bold;display:flex;align-items:center;flex-wrap:wrap;gap:3px;">'+cmdBadge+esc(u.cs)+teamTag+'</div></td>'
     +'<td><span style="font-size:0.72rem;color:var(--blue);font-weight:bold;">'+esc(u.type||'APPLIANCE')+'</span></td>'
     +'<td><div style="display:flex;gap:3px;flex-wrap:wrap;">'+btns+'</div></td>'
     +'<td><input style="width:100%;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:0.78rem;padding:3px;outline:none;" placeholder="Sector / Location" value="'+loc+'" onchange="updateLocation('+u.id+',this.value)"></td>'
-    +'<td style="white-space:nowrap;"><button class="btn-cmd '+(u.isCmd?'is-cmd':'')+'" onclick="toggleCommand('+u.id+')">CMD</button> <button class="btn-cmd" style="color:var(--red-bright);" onclick="removeUnit('+u.id+')">✕</button></td>'
+    +'<td style="white-space:nowrap;display:flex;gap:3px;align-items:center;padding:8px 10px;">'+cmdBtn+' <button class="btn-cmd" style="color:var(--red-bright);" onclick="removeUnit('+u.id+')">✕</button></td>'
     +'</tr>';
+}
+
+function editIcName(unitId) {
+  unitId = Number(unitId);
+  var inc = getActive(); if(!inc) return;
+  var unit = inc.units.find(function(u){return u.id===unitId;}); if(!unit) return;
+  var newName = prompt('Edit IC name for ' + unit.cs + ':', unit.icName || '');
+  if (newName === null) return;
+  unit.icName = newName.trim();
+  logMsg(unit.cs + ' IC name updated' + (unit.icName ? ': ' + unit.icName : ' (cleared)'));
+  save(); render();
 }
 
 function renderTabs() {
   var strip=document.getElementById('incTabStrip');
   if (!store.incidents.length) { strip.innerHTML='<div style="font-family:var(--head);font-size:0.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);display:flex;align-items:center;padding:0 10px;">No incidents — click + New Incident</div>'; return; }
   strip.innerHTML=store.incidents.map(function(i) {
-    var active=(i.id===store.activeId); var susp=(i.status==='suspended'); var cmd=i.units.find(function(u){return u.isCmd;});
+    var active=(i.id===store.activeId); var susp=(i.status==='suspended');
+    var cmds=i.units.filter(function(u){return u.isCmd;});
+    var icLine='';
+    if(cmds.length){
+      icLine='<div class="inc-tab-ic">'+cmds.map(function(u){return (u.icName?esc(u.icName)+' ('+esc(u.cs)+')':esc(u.cs));}).join(' · ')+'</div>';
+    }
     return '<div class="inc-tab'+(active?' active':'')+'" onclick="switchIncident('+i.id+')">'
       +'<button class="inc-tab-close" onclick="event.stopPropagation();deleteIncidentById('+i.id+')">✕</button>'
       +'<div class="inc-tab-name">'+esc(i.name)+'</div>'
       +'<div class="inc-tab-meta"><span class="inc-tab-dot'+(susp?' suspended':'')+'"></span><span>'+(susp?'SUSPENDED':'ACTIVE')+'</span>&nbsp;<span style="font-family:var(--mono);font-size:0.55rem;">'+i.units.length+'u</span></div>'
-      +(cmd?'<div class="inc-tab-ic">IC: '+esc(cmd.cs)+'</div>':'')
+      +icLine
       +'</div>';
   }).join('');
 }
