@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FRNSW Command & Control Tracker</title>
+<!-- Firebase SDK — loaded in head so it's ready before body scripts run -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -404,10 +407,6 @@ td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,0.04);vertical-alig
 
 <div class="log" id="log"></div>
 
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
 <script>
 // ══════════════════════════════════════════
 //  FIREBASE CONFIG
@@ -424,20 +423,18 @@ var FIREBASE_CONFIG = {
 
 var firebaseReady = false;
 var fbDb = null;
-var FB_PATH = 'frnsw/tracker';   // change if you want multiple deployments sharing one DB
+var FB_PATH = 'frnsw/tracker';
 
-try {
-  if (FIREBASE_CONFIG.databaseURL && FIREBASE_CONFIG.databaseURL.indexOf('PASTE') === -1) {
+window.addEventListener('load', function() {
+  try {
     firebase.initializeApp(FIREBASE_CONFIG);
     fbDb = firebase.database();
     firebaseReady = true;
 
     // ── REALTIME LISTENER ──
-    // When any other client saves, we get the update instantly
     fbDb.ref(FB_PATH).on('value', function(snapshot) {
       var remote = snapshot.val();
       if (!remote) return;
-      // Merge remote into store — normalise IDs
       remote.incidents = remote.incidents || [];
       remote.fleet     = remote.fleet     || [];
       remote.teams     = remote.teams     || [];
@@ -449,13 +446,13 @@ try {
       });
       remote.fleet.forEach(function(u) { u.id = Number(u.id); if (!u.status) u.status = 'available'; });
       remote.teams.forEach(function(t) { t.id = Number(t.id); if (!Array.isArray(t.unitIds)) t.unitIds = []; t.unitIds = t.unitIds.map(Number); });
-      remote.activeId = remote.activeId ? Number(remote.activeId) : null;
-      // Only update if remote is actually different (avoid echo from our own writes)
-      if (JSON.stringify(remote) !== JSON.stringify(store)) {
+      // Only update if data actually changed (ignore echo of our own writes)
+      var remoteStr = JSON.stringify({ incidents: remote.incidents, fleet: remote.fleet, teams: remote.teams });
+      var localStr  = JSON.stringify({ incidents: store.incidents,  fleet: store.fleet,  teams: store.teams  });
+      if (remoteStr !== localStr) {
         store.incidents = remote.incidents;
         store.fleet     = remote.fleet;
         store.teams     = remote.teams;
-        // Don't override activeId — each client tracks their own active incident tab
         localStorage.setItem('frnsw_v5', JSON.stringify(store));
         render();
       }
@@ -463,14 +460,11 @@ try {
 
     console.log('[FRNSW] Firebase realtime sync active');
     showSyncBadge('LIVE', '#27ae60');
-  } else {
-    console.log('[FRNSW] Firebase not configured — using local storage only');
-    showSyncBadge('LOCAL', '#6a7a8a');
+  } catch(e) {
+    console.error('[FRNSW] Firebase init failed:', e);
+    showSyncBadge('ERR', '#ff3333');
   }
-} catch(e) {
-  console.error('[FRNSW] Firebase init failed:', e);
-  showSyncBadge('ERR', '#ff3333');
-}
+});
 
 function fbSave(data) {
   if (!firebaseReady || !fbDb) return;
@@ -495,6 +489,11 @@ function showSyncBadge(label, color) {
   badge.style.background = color;
 }
 </script>
+
+<script>
+// ══════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════
 var store = (function() {
   try {
     var s = JSON.parse(localStorage.getItem('frnsw_v5') || 'null');
