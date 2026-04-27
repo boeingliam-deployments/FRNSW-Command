@@ -629,7 +629,7 @@ function saveTeam() {
     var t = store.teams.find(function(x){return x.id===editingTeamId;});
     if (t) { t.name = name; t.unitIds = checked; }
   } else {
-    store.teams.push({ id: Date.now(), name: name, unitIds: checked });
+    store.teams.push({ id: uid(), name: name, unitIds: checked });
   }
   // Update fleet units' teamId field for quick lookup
   store.fleet.forEach(function(u) {
@@ -657,7 +657,7 @@ function createUnit() {
   if (!cs) { document.getElementById('fCS').focus(); return; }
   if (store.fleet.find(function(u){return u.cs===cs;})) { alert('Callsign ' + cs + ' already exists.'); return; }
   var teamId = document.getElementById('fTeam').value ? Number(document.getElementById('fTeam').value) : null;
-  var unit = { id: Date.now(), cs: cs, type: document.getElementById('fType').value.trim().toUpperCase() || 'APPLIANCE', status: 'available', teamId: teamId };
+  var unit = { id: uid(), cs: cs, type: document.getElementById('fType').value.trim().toUpperCase() || 'APPLIANCE', status: 'available', teamId: teamId };
   store.fleet.push(unit);
   // add to team's unitIds
   if (teamId) {
@@ -687,6 +687,9 @@ function setFleetStatus(id, status) {
   unit.status = status; save(); renderFleet();
 }
 
+var _idCounter = Date.now();
+function uid() { return ++_idCounter; }
+
 function assignUnitToIncident(fleetId) {
   fleetId = Number(fleetId);
   var inc = getActive();
@@ -695,7 +698,7 @@ function assignUnitToIncident(fleetId) {
   var fu = store.fleet.find(function(u){return u.id===fleetId;});
   if (!fu) return;
   if (isAssigned(fleetId)) { var ex = assignedTo(fleetId); alert(fu.cs + ' already assigned to ' + (ex?ex.name:'another incident') + '.'); return; }
-  var unit = { id: Date.now(), fleetId: fleetId, cs: fu.cs, type: fu.type, status: 'responding', location: '', isCmd: false, ts: ts() };
+  var unit = { id: uid(), fleetId: fleetId, cs: fu.cs, type: fu.type, status: 'responding', location: '', isCmd: false, ts: ts() };
   inc.units.push(unit);
   logMsg(fu.cs + ' assigned to ' + inc.name);
   save(); render();
@@ -713,7 +716,7 @@ function assignTeamToIncident(teamId) {
     var fu = store.fleet.find(function(u){return u.id===fid;});
     if (!fu) return;
     if (isAssigned(fid)) { skipped.push(fu.cs); return; }
-    var unit = { id: Date.now(), fleetId: fid, cs: fu.cs, type: fu.type, status: 'responding', location: '', isCmd: false, ts: ts() };
+    var unit = { id: uid(), fleetId: fid, cs: fu.cs, type: fu.type, status: 'responding', location: '', isCmd: false, ts: ts() };
     inc.units.push(unit);
     assigned++;
   });
@@ -839,7 +842,7 @@ function deleteTeamDirect(id) {
 function createNewIncident() {
   var name = prompt('Enter Incident Identifier (e.g. P25-12345):');
   if (!name||!name.trim()) return;
-  var inc = { id: Date.now(), name: name.trim().toUpperCase(), units: [], logs: [{ ts: ts(), msg: 'Incident created' }], status: 'active' };
+  var inc = { id: uid(), name: name.trim().toUpperCase(), units: [], logs: [{ ts: ts(), msg: 'Incident created' }], status: 'active' };
   store.incidents.push(inc); store.activeId = inc.id; save(); render();
 }
 function switchIncident(id) { store.activeId = Number(id); save(); render(); }
@@ -886,11 +889,59 @@ function removeUnit(unitId) {
   inc.units=inc.units.filter(function(u){return u.id!==unitId;});
   logMsg(unit.cs+' released'); save(); render();
 }
+
+function removeTeamFromIncident(teamId) {
+  teamId = Number(teamId);
+  var inc = getActive(); if(!inc) return;
+  var team = store.teams.find(function(t){return t.id===teamId;});
+  var teamName = team ? team.name : 'Team';
+  var members = inc.units.filter(function(u){
+    var fu = store.fleet.find(function(f){return f.id===u.fleetId;});
+    return fu && fu.teamId === teamId;
+  });
+  if(!members.length) return;
+  if(!confirm('Release all '+members.length+' unit(s) from team "'+teamName+'" back to available?')) return;
+  var ids = members.map(function(u){return u.id;});
+  inc.units = inc.units.filter(function(u){return ids.indexOf(u.id)===-1;});
+  logMsg('Team '+teamName+' ('+members.length+' units) released from incident');
+  save(); render();
+}
+
+function setTeamStatus(teamId, status) {
+  teamId = Number(teamId);
+  var inc = getActive(); if(!inc||inc.status==='suspended') return;
+  var updated = 0;
+  inc.units.forEach(function(u){
+    var fu = store.fleet.find(function(f){return f.id===u.fleetId;});
+    if(fu && fu.teamId===teamId){ u.status=status; u.ts=ts(); updated++; }
+  });
+  if(updated){
+    var team=store.teams.find(function(t){return t.id===teamId;});
+    logMsg('Team '+(team?team.name:'')+ ': all units → '+status.toUpperCase());
+    save(); render();
+  }
+}
+
 function logMsg(msg) { var inc=getActive(); if(!inc) return; inc.logs.unshift({ts:ts(),msg:msg}); }
 
 // ══════════════════════════════════════════
 //  RENDER
 // ══════════════════════════════════════════
+function renderIncidentRow(u) {
+  var btns=STATUSES.map(function(s){var col=s==='responding'?'amber':s==='scene'?'red-bright':s==='returning'?'blue':'green';return '<button class="sbtn'+(u.status===s?' active':'')+'" style="--color:var(--'+col+')" onclick="setStatus('+u.id+',\''+s+'\')">'+s.toUpperCase()+'</button>';}).join('');
+  var loc=esc(u.location||'');
+  var fu=store.fleet.find(function(f){return f.id===u.fleetId;});
+  var teamTag='';
+  if(fu&&fu.teamId){var t=store.teams.find(function(x){return x.id===fu.teamId;});if(t) teamTag='<span style="font-size:0.52rem;color:#bb8fce;margin-left:6px;font-family:var(--head);letter-spacing:1px;">'+esc(t.name)+'</span>';}
+  return '<tr class="'+(u.isCmd?'command-row':'')+'">'
+    +'<td><div style="font-family:var(--mono);font-weight:bold;display:flex;align-items:center;">'+(u.isCmd?'<span class="cmd-badge">CMD</span>':'')+esc(u.cs)+teamTag+'</div></td>'
+    +'<td><span style="font-size:0.72rem;color:var(--blue);font-weight:bold;">'+esc(u.type||'APPLIANCE')+'</span></td>'
+    +'<td><div style="display:flex;gap:3px;flex-wrap:wrap;">'+btns+'</div></td>'
+    +'<td><input style="width:100%;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:0.78rem;padding:3px;outline:none;" placeholder="Sector / Location" value="'+loc+'" onchange="updateLocation('+u.id+',this.value)"></td>'
+    +'<td style="white-space:nowrap;"><button class="btn-cmd '+(u.isCmd?'is-cmd':'')+'" onclick="toggleCommand('+u.id+')">CMD</button> <button class="btn-cmd" style="color:var(--red-bright);" onclick="removeUnit('+u.id+')">✕</button></td>'
+    +'</tr>';
+}
+
 function renderTabs() {
   var strip=document.getElementById('incTabStrip');
   if (!store.incidents.length) { strip.innerHTML='<div style="font-family:var(--head);font-size:0.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);display:flex;align-items:center;padding:0 10px;">No incidents — click + New Incident</div>'; return; }
@@ -921,20 +972,58 @@ function render() {
   document.getElementById('stat-total').textContent=inc.units.length;
   ['responding','scene','returning'].forEach(function(s){document.getElementById('stat-'+s).textContent=inc.units.filter(function(u){return u.status===s;}).length;});
   if (!inc.units.length) {
-    document.getElementById('unitTable').innerHTML='<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-dim);font-family:var(--head);letter-spacing:2px;text-transform:uppercase;font-size:0.7rem;">No units assigned — use the fleet panel</td></tr>';
+    document.getElementById('unitTable').innerHTML='<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-dim);font-family:var(--head);letter-spacing:2px;text-transform:uppercase;font-size:0.7rem;">No units assigned — use the fleet panel</td></tr>';
   } else {
-    var sorted=inc.units.slice().sort(function(a,b){return (b.isCmd?1:0)-(a.isCmd?1:0);});
-    document.getElementById('unitTable').innerHTML=sorted.map(function(u) {
-      var btns=STATUSES.map(function(s){var col=s==='responding'?'amber':s==='scene'?'red-bright':s==='returning'?'blue':'green';return '<button class="sbtn'+(u.status===s?' active':'')+'" style="--color:var(--'+col+')" onclick="setStatus('+u.id+',\''+s+'\')">'+s.toUpperCase()+'</button>';}).join('');
-      var loc=esc(u.location||'');
-      return '<tr class="'+(u.isCmd?'command-row':'')+'">'
-        +'<td><div style="font-family:var(--mono);font-weight:bold;">'+(u.isCmd?'<span class="cmd-badge">COMMAND</span>':'')+esc(u.cs)+'</div></td>'
-        +'<td><span style="font-size:0.72rem;color:var(--blue);font-weight:bold;">'+esc(u.type||'APPLIANCE')+'</span></td>'
-        +'<td><div style="display:flex;gap:3px;flex-wrap:wrap;">'+btns+'</div></td>'
-        +'<td><input style="width:100%;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:0.78rem;padding:3px;outline:none;" placeholder="Sector / Location" value="'+loc+'" onchange="updateLocation('+u.id+',this.value)"></td>'
-        +'<td style="white-space:nowrap;"><button class="btn-cmd '+(u.isCmd?'is-cmd':'')+'" onclick="toggleCommand('+u.id+')">CMD</button> <button class="btn-cmd" style="color:var(--red-bright);" onclick="removeUnit('+u.id+')">✕</button></td>'
+    // Group units: command first, then by team, then ungrouped
+    var rows = '';
+
+    // Build team groups present in this incident
+    var teamsPresent = [];
+    store.teams.forEach(function(t){
+      var members = inc.units.filter(function(u){
+        var fu = store.fleet.find(function(f){return f.id===u.fleetId;});
+        return fu && fu.teamId===t.id;
+      });
+      if(members.length) teamsPresent.push({team:t, members:members});
+    });
+
+    var teamUnitIds = [];
+    teamsPresent.forEach(function(g){ g.members.forEach(function(u){ teamUnitIds.push(u.id); }); });
+
+    // Command units first (not in a team group header)
+    var cmdUnits = inc.units.filter(function(u){ return u.isCmd && teamUnitIds.indexOf(u.id)===-1; });
+    cmdUnits.forEach(function(u){ rows += renderIncidentRow(u); });
+
+    // Team groups
+    teamsPresent.forEach(function(g){
+      var t = g.team;
+      var members = g.members;
+      // Team header row
+      var teamStatusBtns = STATUSES.map(function(s){
+        var col=s==='responding'?'amber':s==='scene'?'red-bright':s==='returning'?'blue':'green';
+        return '<button class="sbtn" style="--color:var(--'+col+');font-size:0.55rem;padding:2px 6px;" onclick="setTeamStatus('+t.id+',\''+s+'\')">ALL '+s.toUpperCase()+'</button>';
+      }).join('');
+      rows += '<tr style="background:rgba(142,68,173,0.08);border-left:3px solid var(--purple);">'
+        +'<td colspan="2" style="padding:5px 10px;">'
+        +  '<span style="font-family:var(--head);font-size:0.68rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#bb8fce;">⬡ '+esc(t.name)+'</span>'
+        +  '<span style="font-family:var(--mono);font-size:0.6rem;color:var(--text-dim);margin-left:8px;">'+members.length+' unit'+(members.length!==1?'s':'')+'</span>'
+        +'</td>'
+        +'<td colspan="2" style="padding:5px 8px;"><div style="display:flex;gap:3px;flex-wrap:wrap;">'+teamStatusBtns+'</div></td>'
+        +'<td style="padding:5px 8px;white-space:nowrap;">'
+        +  '<button class="btn-cmd" style="color:var(--red-bright);font-size:0.6rem;" onclick="removeTeamFromIncident('+t.id+')">✕ Remove Team</button>'
+        +'</td>'
         +'</tr>';
-    }).join('');
+      // Sort members: cmd first
+      members.slice().sort(function(a,b){return (b.isCmd?1:0)-(a.isCmd?1:0);}).forEach(function(u){
+        rows += renderIncidentRow(u);
+      });
+    });
+
+    // Ungrouped non-cmd units
+    var ungrouped = inc.units.filter(function(u){ return !u.isCmd && teamUnitIds.indexOf(u.id)===-1; });
+    ungrouped.forEach(function(u){ rows += renderIncidentRow(u); });
+
+    document.getElementById('unitTable').innerHTML = rows;
   }
   document.getElementById('log').innerHTML=inc.logs.map(function(l){return '<div class="log-entry"><span class="log-ts">['+l.ts+']</span> '+l.msg+'</div>';}).join('');
 }
