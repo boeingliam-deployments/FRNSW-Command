@@ -6,189 +6,213 @@
 <title>FRNSW Command & Control Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --red: #cc2020; --red-bright: #ff3333;
-    --green: #27ae60; --amber: #e67e22; --blue: #2980b9; --gold: #f1c40f;
-    --bg: #0d0f12; --bg2: #13171c; --bg3: #1a1f26; --bg4: #20262f;
-    --border: #252c38; --text: #dce6f0; --text-dim: #6a7a8a;
-    --mono: 'Share Tech Mono', monospace;
-    --head: 'Rajdhani', sans-serif;
-    --body: 'Barlow', sans-serif;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: var(--body); height: 100vh; overflow: hidden; display: flex; flex-direction: row; }
+:root {
+  --red:#cc2020;--red-bright:#ff3333;--green:#27ae60;--amber:#e67e22;
+  --blue:#2980b9;--gold:#f1c40f;--purple:#8e44ad;
+  --bg:#0d0f12;--bg2:#13171c;--bg3:#1a1f26;--bg4:#20262f;
+  --border:#252c38;--text:#dce6f0;--text-dim:#6a7a8a;
+  --mono:'Share Tech Mono',monospace;--head:'Rajdhani',sans-serif;--body:'Barlow',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--body);height:100vh;overflow:hidden;display:flex;flex-direction:row;}
 
-  /* ── SIDEBAR ── */
-  .sidebar { width: 55px; background: var(--bg2); border-right: 2px solid var(--red); display: flex; flex-direction: column; align-items: center; padding-top: 15px; gap: 8px; z-index: 200; flex-shrink: 0; }
-  .btn-side { width: 40px; height: 40px; border-radius: 4px; border: none; font-family: var(--head); font-weight: 700; font-size: 0.7rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; text-align: center; line-height: 1.1; }
-  .btn-side.red  { background: var(--red); color: white; box-shadow: 0 0 10px rgba(204,32,32,0.3); }
-  .btn-side.red:hover { background: var(--red-bright); transform: scale(1.05); }
-  .btn-side.dim  { background: var(--bg3); color: var(--text-dim); border: 1px solid var(--border); }
-  .btn-side.dim:hover { color: var(--text); border-color: var(--text-dim); }
-  .btn-side.dim.active { background: var(--bg4); color: var(--amber); border-color: var(--amber); }
+/* SIDEBAR */
+.sidebar{width:55px;background:var(--bg2);border-right:2px solid var(--red);display:flex;flex-direction:column;align-items:center;padding-top:15px;gap:8px;z-index:200;flex-shrink:0;}
+.btn-side{width:40px;height:40px;border-radius:4px;border:none;font-family:var(--head);font-weight:700;font-size:0.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;text-align:center;line-height:1.1;}
+.btn-side.red{background:var(--red);color:white;box-shadow:0 0 10px rgba(204,32,32,0.3);}
+.btn-side.red:hover{background:var(--red-bright);transform:scale(1.05);}
+.btn-side.dim{background:var(--bg3);color:var(--text-dim);border:1px solid var(--border);}
+.btn-side.dim:hover{color:var(--text);border-color:var(--text-dim);}
+.btn-side.dim.active{background:var(--bg4);color:var(--amber);border-color:var(--amber);}
 
-  /* ── APP CONTAINER ── */
-  .app-container { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+/* APP */
+.app-container{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
 
-  /* ── HEADER ── */
-  header { background: var(--bg2); border-bottom: 3px solid var(--red); padding: 0 1.2rem; height: 60px; display: flex; align-items: center; justify-content: space-between; z-index: 100; flex-shrink: 0; }
-  .hdr-left { display: flex; align-items: center; gap: 1rem; flex-shrink: 0; }
-  .frnsw-badge { background: var(--red); color: #fff; font-family: var(--head); font-weight: 700; padding: 4px 12px; clip-path: polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%); font-size: 0.9rem; letter-spacing: 1px; }
-  .btn-ui { border: none; padding: 5px 12px; border-radius: 3px; cursor: pointer; font-family: var(--head); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
-  .btn-new  { background: var(--green); color: white; }
-  .btn-new:hover { filter: brightness(1.15); }
+/* HEADER */
+header{background:var(--bg2);border-bottom:3px solid var(--red);padding:0 1.2rem;height:60px;display:flex;align-items:center;justify-content:space-between;z-index:100;flex-shrink:0;}
+.hdr-left{display:flex;align-items:center;gap:1rem;flex-shrink:0;}
+.frnsw-badge{background:var(--red);color:#fff;font-family:var(--head);font-weight:700;padding:4px 12px;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);font-size:0.9rem;letter-spacing:1px;}
+.btn-ui{border:none;padding:5px 12px;border-radius:3px;cursor:pointer;font-family:var(--head);font-size:0.7rem;font-weight:700;text-transform:uppercase;}
+.btn-new{background:var(--green);color:white;}
+.btn-new:hover{filter:brightness(1.15);}
+#clock{font-family:var(--mono);color:var(--amber);font-size:1rem;flex-shrink:0;}
 
-  /* ── INCIDENT TABS ── */
-  .inc-tab-strip { display: flex; align-items: stretch; overflow-x: auto; flex: 1; margin: 0 0.8rem; height: 60px; }
-  .inc-tab-strip::-webkit-scrollbar { height: 3px; }
-  .inc-tab-strip::-webkit-scrollbar-thumb { background: var(--border); }
-  .inc-tab { display: flex; flex-direction: column; justify-content: center; padding: 0 14px 0 12px; cursor: pointer; border-bottom: 3px solid transparent; border-top: 3px solid transparent; border-left: 1px solid transparent; border-right: 1px solid transparent; transition: background 0.15s; white-space: nowrap; flex-shrink: 0; min-width: 110px; position: relative; }
-  .inc-tab:hover { background: var(--bg3); }
-  .inc-tab.active { background: var(--bg3); border-bottom-color: var(--red); border-left-color: var(--border); border-right-color: var(--border); }
-  .inc-tab-name { font-family: var(--mono); font-size: 0.75rem; color: var(--text-dim); font-weight: bold; letter-spacing: 1px; }
-  .inc-tab.active .inc-tab-name { color: var(--red-bright); }
-  .inc-tab-meta { font-size: 0.55rem; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; display: flex; align-items: center; gap: 4px; }
-  .inc-tab-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); display: inline-block; flex-shrink: 0; }
-  .inc-tab-dot.suspended { background: var(--amber); }
-  .inc-tab-close { position: absolute; top: 5px; right: 4px; background: none; border: none; color: var(--border); cursor: pointer; font-size: 0.7rem; line-height: 1; padding: 2px; transition: color 0.15s; }
-  .inc-tab-close:hover { color: var(--red-bright); }
-  .inc-tab-ic { font-size: 0.52rem; color: var(--gold); letter-spacing: 1px; margin-top: 1px; }
+/* INCIDENT TABS */
+.inc-tab-strip{display:flex;align-items:stretch;overflow-x:auto;flex:1;margin:0 0.8rem;height:60px;}
+.inc-tab-strip::-webkit-scrollbar{height:3px;}
+.inc-tab-strip::-webkit-scrollbar-thumb{background:var(--border);}
+.inc-tab{display:flex;flex-direction:column;justify-content:center;padding:0 14px 0 12px;cursor:pointer;border-bottom:3px solid transparent;border-top:3px solid transparent;border-left:1px solid transparent;border-right:1px solid transparent;transition:background 0.15s;white-space:nowrap;flex-shrink:0;min-width:110px;position:relative;}
+.inc-tab:hover{background:var(--bg3);}
+.inc-tab.active{background:var(--bg3);border-bottom-color:var(--red);border-left-color:var(--border);border-right-color:var(--border);}
+.inc-tab-name{font-family:var(--mono);font-size:0.75rem;color:var(--text-dim);font-weight:bold;letter-spacing:1px;}
+.inc-tab.active .inc-tab-name{color:var(--red-bright);}
+.inc-tab-meta{font-size:0.55rem;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-top:2px;display:flex;align-items:center;gap:4px;}
+.inc-tab-dot{width:5px;height:5px;border-radius:50%;background:var(--green);display:inline-block;flex-shrink:0;}
+.inc-tab-dot.suspended{background:var(--amber);}
+.inc-tab-close{position:absolute;top:5px;right:4px;background:none;border:none;color:var(--border);cursor:pointer;font-size:0.7rem;line-height:1;padding:2px;transition:color 0.15s;}
+.inc-tab-close:hover{color:var(--red-bright);}
+.inc-tab-ic{font-size:0.52rem;color:var(--gold);letter-spacing:1px;margin-top:1px;}
 
-  #clock { font-family: var(--mono); color: var(--amber); font-size: 1rem; flex-shrink: 0; }
+/* STATS */
+.stats-strip{display:grid;grid-template-columns:repeat(4,1fr);background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0;}
+.stat{padding:0.45rem 1rem;border-right:1px solid var(--border);display:flex;align-items:center;gap:0.8rem;}
+.stat:last-child{border-right:none;}
+.stat-num{font-family:var(--mono);font-size:1.4rem;color:var(--text);}
+.stat-label{font-size:0.58rem;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);}
 
-  /* ── STATS STRIP ── */
-  .stats-strip { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--bg2); border-bottom: 1px solid var(--border); flex-shrink: 0; }
-  .stat { padding: 0.45rem 1rem; border-right: 1px solid var(--border); display: flex; align-items: center; gap: 0.8rem; }
-  .stat:last-child { border-right: none; }
-  .stat-num { font-family: var(--mono); font-size: 1.4rem; color: var(--text); }
-  .stat-label { font-size: 0.58rem; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); }
+/* PANELS */
+.panels{flex:1;display:flex;overflow:hidden;min-height:0;}
 
-  /* ── MAIN PANELS ── */
-  .panels { flex: 1; display: flex; overflow: hidden; min-height: 0; }
+/* ── FLEET PANEL ── */
+.fleet-panel{width:340px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;padding-bottom:145px;}
+.panel-header{padding:7px 10px;border-bottom:1px solid var(--border);background:var(--bg3);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:6px;}
+.panel-title{font-family:var(--head);font-size:0.68rem;letter-spacing:3px;text-transform:uppercase;color:var(--text-dim);white-space:nowrap;}
 
-  /* ── FLEET PANEL (left) ── */
-  .fleet-panel { width: 320px; flex-shrink: 0; background: var(--bg2); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; padding-bottom: 145px; }
-  .panel-header { padding: 8px 12px; border-bottom: 1px solid var(--border); background: var(--bg3); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
-  .panel-title { font-family: var(--head); font-size: 0.7rem; letter-spacing: 3px; text-transform: uppercase; color: var(--text-dim); }
-  .fleet-list { flex: 1; overflow-y: auto; min-height: 0; }
-  .fleet-list::-webkit-scrollbar { width: 4px; }
-  .fleet-list::-webkit-scrollbar-thumb { background: var(--border); }
+/* Fleet filter bar */
+.fleet-filters{display:flex;flex-direction:column;gap:4px;padding:7px 8px;border-bottom:1px solid var(--border);background:var(--bg3);flex-shrink:0;}
+.fleet-search{background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:0.75rem;padding:4px 8px;outline:none;border-radius:2px;width:100%;transition:border-color 0.2s;}
+.fleet-search:focus{border-color:var(--red);}
+.fleet-search::placeholder{color:var(--text-dim);}
+.filter-chips{display:flex;gap:3px;flex-wrap:wrap;}
+.chip{background:var(--bg);border:1px solid var(--border);color:var(--text-dim);font-family:var(--head);font-size:0.58rem;font-weight:700;letter-spacing:1px;padding:2px 7px;border-radius:2px;cursor:pointer;text-transform:uppercase;transition:all 0.12s;}
+.chip:hover{border-color:var(--text-dim);color:var(--text);}
+.chip.active{background:var(--bg4);border-color:var(--amber);color:var(--amber);}
+.chip.team-chip{border-color:var(--purple);color:var(--purple);}
+.chip.team-chip.active{background:rgba(142,68,173,0.2);border-color:var(--purple);color:#bb8fce;}
 
-  .fleet-item { display: flex; align-items: center; padding: 7px 10px; border-bottom: 1px solid rgba(37,44,56,0.6); gap: 8px; transition: background 0.12s; }
-  .fleet-item:hover { background: var(--bg3); }
-  .fleet-item.assigned { opacity: 0.45; }
-  .fleet-cs { font-family: var(--mono); font-size: 0.82rem; font-weight: bold; color: #fff; flex: 1; min-width: 0; }
-  .fleet-type { font-size: 0.62rem; color: var(--blue); text-transform: uppercase; white-space: nowrap; }
-  .fleet-badge { font-size: 0.52rem; padding: 1px 5px; border-radius: 2px; font-family: var(--head); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; }
-  .fleet-badge.free { background: rgba(39,174,96,0.15); color: var(--green); border: 1px solid rgba(39,174,96,0.3); }
-  .fleet-badge.busy { background: rgba(204,32,32,0.15); color: var(--red-bright); border: 1px solid rgba(204,32,32,0.3); }
-  .btn-assign { background: var(--blue); color: #fff; border: none; font-family: var(--head); font-size: 0.6rem; font-weight: 700; padding: 3px 8px; border-radius: 2px; cursor: pointer; text-transform: uppercase; white-space: nowrap; transition: background 0.15s; }
-  .btn-assign:hover { background: #3498db; }
-  .btn-assign:disabled { background: var(--border); color: var(--text-dim); cursor: not-allowed; }
-  .btn-del-unit { background: none; border: none; color: var(--border); cursor: pointer; font-size: 0.75rem; padding: 2px 4px; transition: color 0.15s; line-height: 1; flex-shrink: 0; }
-  .btn-del-unit:hover { color: var(--red-bright); }
+/* Fleet list */
+.fleet-list{flex:1;overflow-y:auto;min-height:0;}
+.fleet-list::-webkit-scrollbar{width:4px;}
+.fleet-list::-webkit-scrollbar-thumb{background:var(--border);}
 
-  /* Fleet unit status buttons */
-  .fleet-status-row { display: flex; gap: 3px; margin-top: 4px; flex-wrap: wrap; }
-  .fsbtn { background: var(--bg); border: 1px solid var(--border); color: var(--text-dim); padding: 2px 6px; cursor: pointer; font-family: var(--head); font-size: 0.55rem; font-weight: 700; letter-spacing: 1px; border-radius: 2px; text-transform: uppercase; transition: all 0.12s; }
-  .fsbtn:hover:not(.fsbtn-active) { border-color: var(--text-dim); color: var(--text); }
-  .fsbtn-available  { border-color: var(--green);      color: var(--green);      background: rgba(39,174,96,0.12); }
-  .fsbtn-responding { border-color: var(--amber);      color: var(--amber);      background: rgba(230,126,34,0.12); }
-  .fsbtn-scene      { border-color: var(--red-bright); color: var(--red-bright); background: rgba(255,51,51,0.12); }
-  .fsbtn-returning  { border-color: var(--blue);       color: var(--blue);       background: rgba(41,128,185,0.12); }
-  .fsbtn-unavailable{ border-color: var(--text-dim);   color: var(--text-dim);   background: rgba(106,122,138,0.1); }
+/* Team header row inside list */
+.team-group-header{display:flex;align-items:center;justify-content:space-between;padding:5px 10px 4px;background:rgba(142,68,173,0.08);border-bottom:1px solid rgba(142,68,173,0.2);border-top:1px solid var(--border);cursor:pointer;user-select:none;}
+.team-group-header:hover{background:rgba(142,68,173,0.14);}
+.team-group-label{display:flex;align-items:center;gap:6px;}
+.team-dot{width:6px;height:6px;border-radius:50%;background:var(--purple);flex-shrink:0;}
+.team-name-text{font-family:var(--head);font-size:0.7rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#bb8fce;}
+.team-count{font-family:var(--mono);font-size:0.6rem;color:var(--text-dim);}
+.team-actions{display:flex;gap:4px;align-items:center;}
+.btn-assign-team{background:var(--purple);color:#fff;border:none;font-family:var(--head);font-size:0.58rem;font-weight:700;padding:2px 7px;border-radius:2px;cursor:pointer;text-transform:uppercase;transition:background 0.15s;}
+.btn-assign-team:hover{background:#9b59b6;}
+.btn-assign-team:disabled{background:var(--border);color:var(--text-dim);cursor:not-allowed;}
+.btn-del-team{background:none;border:none;color:var(--border);cursor:pointer;font-size:0.7rem;padding:1px 3px;transition:color 0.15s;line-height:1;}
+.btn-del-team:hover{color:var(--red-bright);}
 
-  /* Fleet add form */
-  .fleet-add { padding: 8px 10px; border-top: 1px solid var(--border); background: var(--bg3); flex-shrink: 0; }
-  .fleet-add-row { display: flex; gap: 5px; margin-bottom: 5px; }
-  .fleet-add input, .fleet-add select { background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--mono); font-size: 0.75rem; padding: 5px 7px; outline: none; border-radius: 2px; width: 100%; transition: border-color 0.2s; }
-  .fleet-add input:focus, .fleet-add select:focus { border-color: var(--red); }
-  .fleet-add select option { background: var(--bg); }
-  .btn-create-unit { width: 100%; background: var(--red); color: #fff; border: none; font-family: var(--head); font-weight: 700; font-size: 0.75rem; letter-spacing: 1px; padding: 6px; cursor: pointer; text-transform: uppercase; border-radius: 2px; transition: background 0.15s; }
-  .btn-create-unit:hover { background: var(--red-bright); }
+/* Fleet item */
+.fleet-item{display:flex;align-items:center;padding:6px 10px;border-bottom:1px solid rgba(37,44,56,0.5);gap:6px;transition:background 0.12s;}
+.fleet-item:hover{background:var(--bg3);}
+.fleet-item.assigned{opacity:0.4;}
+.fleet-cs{font-family:var(--mono);font-size:0.8rem;font-weight:bold;color:#fff;min-width:0;}
+.fleet-type{font-size:0.58rem;color:var(--blue);text-transform:uppercase;white-space:nowrap;}
+.fleet-team-tag{font-size:0.5rem;padding:1px 4px;border-radius:2px;font-family:var(--head);font-weight:700;letter-spacing:1px;text-transform:uppercase;background:rgba(142,68,173,0.18);color:#bb8fce;border:1px solid rgba(142,68,173,0.35);white-space:nowrap;}
+.btn-assign{background:var(--blue);color:#fff;border:none;font-family:var(--head);font-size:0.58rem;font-weight:700;padding:2px 7px;border-radius:2px;cursor:pointer;text-transform:uppercase;white-space:nowrap;transition:background 0.15s;flex-shrink:0;}
+.btn-assign:hover{background:#3498db;}
+.btn-assign:disabled{background:var(--border);color:var(--text-dim);cursor:not-allowed;}
+.btn-del-unit{background:none;border:none;color:var(--border);cursor:pointer;font-size:0.7rem;padding:2px 3px;transition:color 0.15s;line-height:1;flex-shrink:0;}
+.btn-del-unit:hover{color:var(--red-bright);}
 
-  /* ── INCIDENT PANEL (right) ── */
-  .incident-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+/* Fleet status buttons */
+.fleet-status-row{display:flex;gap:2px;margin-top:3px;flex-wrap:wrap;}
+.fsbtn{background:var(--bg);border:1px solid var(--border);color:var(--text-dim);padding:2px 5px;cursor:pointer;font-family:var(--head);font-size:0.5rem;font-weight:700;letter-spacing:1px;border-radius:2px;text-transform:uppercase;transition:all 0.12s;}
+.fsbtn:hover{border-color:var(--text-dim);color:var(--text);}
+.fsbtn-available  {border-color:var(--green);     color:var(--green);     background:rgba(39,174,96,0.1);}
+.fsbtn-responding {border-color:var(--amber);     color:var(--amber);     background:rgba(230,126,34,0.1);}
+.fsbtn-scene      {border-color:var(--red-bright);color:var(--red-bright);background:rgba(255,51,51,0.1);}
+.fsbtn-returning  {border-color:var(--blue);      color:var(--blue);      background:rgba(41,128,185,0.1);}
+.fsbtn-unavailable{border-color:var(--text-dim);  color:var(--text-dim);  background:rgba(106,122,138,0.08);}
 
-  /* Toolbar */
-  .toolbar { display: flex; align-items: center; gap: 0.6rem; padding: 6px 1.2rem; background: var(--bg2); border-bottom: 1px solid var(--border); flex-shrink: 0; flex-wrap: wrap; }
-  .toolbar-label { font-family: var(--head); font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); }
+/* Fleet add form */
+.fleet-add{padding:8px 10px;border-top:1px solid var(--border);background:var(--bg3);flex-shrink:0;}
+.fleet-add-row{display:flex;gap:5px;margin-bottom:5px;}
+.fleet-add input,.fleet-add select{background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:0.75rem;padding:5px 7px;outline:none;border-radius:2px;width:100%;transition:border-color 0.2s;}
+.fleet-add input:focus,.fleet-add select:focus{border-color:var(--red);}
+.fleet-add select option{background:var(--bg);}
+.btn-create-unit{width:100%;background:var(--red);color:#fff;border:none;font-family:var(--head);font-weight:700;font-size:0.75rem;letter-spacing:1px;padding:6px;cursor:pointer;text-transform:uppercase;border-radius:2px;transition:background 0.15s;}
+.btn-create-unit:hover{background:var(--red-bright);}
 
-  .main-content { flex: 1; overflow-y: auto; padding: 1rem 1.2rem; padding-bottom: 170px; position: relative; }
-  table { width: 100%; border-collapse: collapse; }
-  th { text-align: left; font-size: 0.62rem; color: var(--text-dim); text-transform: uppercase; padding: 8px 10px; border-bottom: 1px solid var(--border); letter-spacing: 1px; }
-  td { padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
+/* ── INCIDENT PANEL ── */
+.incident-panel{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+.toolbar{display:flex;align-items:center;gap:0.6rem;padding:6px 1.2rem;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;}
+.toolbar-label{font-family:var(--head);font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);}
+.main-content{flex:1;overflow-y:auto;padding:1rem 1.2rem;padding-bottom:170px;position:relative;}
+table{width:100%;border-collapse:collapse;}
+th{text-align:left;font-size:0.62rem;color:var(--text-dim);text-transform:uppercase;padding:8px 10px;border-bottom:1px solid var(--border);letter-spacing:1px;}
+td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:middle;}
+.command-row{border-left:4px solid var(--gold);background:rgba(241,196,15,0.04);}
+.cmd-badge{color:var(--gold);font-weight:bold;font-size:0.65rem;border:1px solid var(--gold);padding:1px 4px;border-radius:3px;margin-right:5px;}
+.sbtn{background:var(--bg3);border:1px solid var(--border);color:var(--text-dim);padding:3px 7px;cursor:pointer;font-size:0.62rem;border-radius:2px;transition:all 0.12s;}
+.sbtn.active{border-color:var(--color);color:var(--color);font-weight:bold;background:rgba(255,255,255,0.04);}
+.sbtn:hover:not(.active){border-color:var(--text-dim);color:var(--text);}
+.btn-cmd{background:transparent;border:1px solid var(--border);color:var(--text-dim);padding:3px 8px;cursor:pointer;border-radius:2px;font-size:0.62rem;transition:all 0.12s;}
+.btn-cmd:hover{border-color:var(--text-dim);color:var(--text);}
+.btn-cmd.is-cmd{border-color:var(--gold);color:var(--gold);}
+.suspended-overlay{position:absolute;inset:0;background:rgba(13,15,18,0.7);display:flex;align-items:center;justify-content:center;z-index:10;}
+.suspended-msg{background:var(--amber);color:#000;padding:15px 30px;font-family:var(--head);font-weight:700;text-transform:uppercase;border-radius:2px;}
+.incident-suspended{opacity:0.4;filter:grayscale(0.8);pointer-events:none;}
 
-  .command-row { border-left: 4px solid var(--gold); background: rgba(241,196,15,0.04); }
-  .cmd-badge { color: var(--gold); font-weight: bold; font-size: 0.65rem; border: 1px solid var(--gold); padding: 1px 4px; border-radius: 3px; margin-right: 5px; }
+/* LOG */
+.log{position:fixed;bottom:0;right:0;left:55px;height:145px;background:var(--bg2);border-top:2px solid var(--red);padding:8px 16px;overflow-y:auto;font-family:var(--mono);font-size:0.72rem;z-index:50;}
+.log::-webkit-scrollbar{width:4px;}
+.log::-webkit-scrollbar-thumb{background:var(--border);}
+.log-entry{margin-bottom:3px;border-bottom:1px solid rgba(255,255,255,0.02);padding-bottom:2px;}
+.log-ts{color:var(--amber);margin-right:8px;}
 
-  .sbtn { background: var(--bg3); border: 1px solid var(--border); color: var(--text-dim); padding: 3px 7px; cursor: pointer; font-size: 0.62rem; border-radius: 2px; transition: all 0.12s; }
-  .sbtn.active { border-color: var(--color); color: var(--color); font-weight: bold; background: rgba(255,255,255,0.04); }
-  .sbtn:hover:not(.active) { border-color: var(--text-dim); color: var(--text); }
-  .btn-cmd { background: transparent; border: 1px solid var(--border); color: var(--text-dim); padding: 3px 8px; cursor: pointer; border-radius: 2px; font-size: 0.62rem; transition: all 0.12s; }
-  .btn-cmd:hover { border-color: var(--text-dim); color: var(--text); }
-  .btn-cmd.is-cmd { border-color: var(--gold); color: var(--gold); }
+/* HUDs */
+.hud{position:fixed;top:80px;left:70px;background:var(--bg2);border-radius:4px;box-shadow:0 10px 40px rgba(0,0,0,0.9);z-index:1000;display:none;flex-direction:column;}
+.hud-header{padding:8px 12px;display:flex;justify-content:space-between;align-items:center;cursor:move;border-radius:4px 4px 0 0;}
+.hud-header span{font-family:var(--head);font-weight:700;font-size:0.85rem;letter-spacing:1px;}
+.hud-header button{background:none;border:none;cursor:pointer;font-weight:bold;font-size:0.9rem;padding:0 2px;}
+.hud-body{padding:14px;font-family:var(--mono);font-size:0.78rem;line-height:1.5;background:var(--bg);}
+.hud-footer{padding:5px 12px;background:var(--bg2);border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;border-radius:0 0 4px 4px;}
+.hud-footer span{font-size:0.56rem;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;}
+.hud-footer button{background:none;border:none;color:var(--text-dim);font-family:var(--head);font-size:0.58rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer;}
+.hud-footer button:hover{color:var(--red-bright);}
+.qrf-hud{border:1px solid var(--red);width:290px;}
+.qrf-hud .hud-header{background:var(--red);}
+.qrf-hud .hud-header span,.qrf-hud .hud-header button{color:white;}
+.qrf-section{margin-bottom:12px;}
+.qrf-section-title{color:var(--amber);border-bottom:1px solid var(--border);margin-bottom:5px;padding-bottom:2px;text-transform:uppercase;font-size:0.68rem;font-weight:bold;}
+.code-row{display:flex;justify-content:space-between;margin-bottom:2px;}
+.c-red{color:var(--red-bright);font-weight:bold;}.c-white{color:#fff;}.c-blue{color:#3498db;}.c-green{color:var(--green);}.c-yellow{color:var(--gold);}
+.note-hud{border:1px solid var(--amber);width:300px;}
+.note-hud .hud-header{background:var(--amber);}
+.note-hud .hud-header span,.note-hud .hud-header button{color:#000;}
+.note-hud .hud-body{padding:0;}
+.note-hud .hud-body textarea{width:100%;height:220px;background:var(--bg);border:none;color:var(--text);font-family:var(--mono);font-size:0.76rem;line-height:1.6;padding:10px 12px;outline:none;resize:none;}
+.note-hud .hud-body textarea::placeholder{color:var(--text-dim);opacity:0.4;}
 
-  .suspended-overlay { position: absolute; inset: 0; background: rgba(13,15,18,0.7); display: flex; align-items: center; justify-content: center; z-index: 10; }
-  .suspended-msg { background: var(--amber); color: #000; padding: 15px 30px; font-family: var(--head); font-weight: 700; text-transform: uppercase; border-radius: 2px; }
-  .incident-suspended { opacity: 0.4; filter: grayscale(0.8); pointer-events: none; }
+/* MODALS */
+.modal-wrap{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:2000;align-items:center;justify-content:center;}
+.modal-box{background:var(--bg2);border:2px solid var(--border);padding:1.8rem;border-radius:4px;width:420px;}
+.modal-box h3{font-family:var(--head);margin-bottom:1.2rem;letter-spacing:2px;border-bottom:1px solid var(--red);padding-bottom:8px;}
+.tf{display:flex;flex-direction:column;gap:3px;margin-bottom:0.8rem;}
+.tf label{font-size:0.58rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;}
+.tf input,.tf select{background:var(--bg3);border:1px solid var(--border);color:var(--text);font-family:var(--mono);padding:6px;outline:none;border-radius:2px;}
+.tf input:focus,.tf select:focus{border-color:var(--red);}
+.btn-add{background:var(--red);color:#fff;border:none;font-family:var(--head);font-weight:700;padding:8px 15px;cursor:pointer;text-transform:uppercase;border-radius:2px;width:100%;}
+.btn-add:hover{background:var(--red-bright);}
+.empty-state{text-align:center;padding:40px 20px;color:var(--text-dim);}
+.empty-state p{font-family:var(--head);font-size:0.7rem;letter-spacing:3px;text-transform:uppercase;margin-top:8px;}
 
-  /* ── LOG ── */
-  .log { position: fixed; bottom: 0; right: 0; left: 55px; height: 145px; background: var(--bg2); border-top: 2px solid var(--red); padding: 8px 16px; overflow-y: auto; font-family: var(--mono); font-size: 0.72rem; z-index: 50; }
-  .log::-webkit-scrollbar { width: 4px; }
-  .log::-webkit-scrollbar-thumb { background: var(--border); }
-  .log-entry { margin-bottom: 3px; border-bottom: 1px solid rgba(255,255,255,0.02); padding-bottom: 2px; }
-  .log-ts { color: var(--amber); margin-right: 8px; }
-
-  /* ── HUDs ── */
-  .hud { position: fixed; top: 80px; left: 70px; background: var(--bg2); border-radius: 4px; box-shadow: 0 10px 40px rgba(0,0,0,0.9); z-index: 1000; display: none; flex-direction: column; }
-  .hud-header { padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; cursor: move; border-radius: 4px 4px 0 0; }
-  .hud-header span { font-family: var(--head); font-weight: 700; font-size: 0.85rem; letter-spacing: 1px; }
-  .hud-header button { background: none; border: none; cursor: pointer; font-weight: bold; font-size: 0.9rem; padding: 0 2px; }
-  .hud-body { padding: 14px; font-family: var(--mono); font-size: 0.78rem; line-height: 1.5; background: var(--bg); }
-  .hud-footer { padding: 5px 12px; background: var(--bg2); border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; border-radius: 0 0 4px 4px; }
-  .hud-footer span { font-size: 0.56rem; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; }
-  .hud-footer button { background: none; border: none; color: var(--text-dim); font-family: var(--head); font-size: 0.58rem; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; }
-  .hud-footer button:hover { color: var(--red-bright); }
-
-  .qrf-hud { border: 1px solid var(--red); width: 290px; }
-  .qrf-hud .hud-header { background: var(--red); }
-  .qrf-hud .hud-header span, .qrf-hud .hud-header button { color: white; }
-  .qrf-section { margin-bottom: 12px; }
-  .qrf-section-title { color: var(--amber); border-bottom: 1px solid var(--border); margin-bottom: 5px; padding-bottom: 2px; text-transform: uppercase; font-size: 0.68rem; font-weight: bold; }
-  .code-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
-  .c-red { color: var(--red-bright); font-weight: bold; } .c-white { color: #fff; } .c-blue { color: #3498db; } .c-green { color: var(--green); } .c-yellow { color: var(--gold); }
-
-  .note-hud { border: 1px solid var(--amber); width: 300px; }
-  .note-hud .hud-header { background: var(--amber); }
-  .note-hud .hud-header span { color: #000; }
-  .note-hud .hud-header button { color: #000; }
-  .note-hud .hud-body { padding: 0; }
-  .note-hud .hud-body textarea { width: 100%; height: 220px; background: var(--bg); border: none; color: var(--text); font-family: var(--mono); font-size: 0.76rem; line-height: 1.6; padding: 10px 12px; outline: none; resize: none; }
-  .note-hud .hud-body textarea::placeholder { color: var(--text-dim); opacity: 0.4; }
-
-  /* ── MODALS ── */
-  .modal-wrap { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; align-items: center; justify-content: center; }
-  .modal-box { background: var(--bg2); border: 2px solid var(--border); padding: 1.8rem; border-radius: 4px; width: 400px; }
-  .modal-box h3 { font-family: var(--head); margin-bottom: 1.2rem; letter-spacing: 2px; border-bottom: 1px solid var(--red); padding-bottom: 8px; }
-  .tf { display: flex; flex-direction: column; gap: 3px; margin-bottom: 0.8rem; }
-  .tf label { font-size: 0.58rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
-  .tf input, .tf select { background: var(--bg3); border: 1px solid var(--border); color: var(--text); font-family: var(--mono); padding: 6px; outline: none; border-radius: 2px; }
-  .tf input:focus, .tf select:focus { border-color: var(--red); }
-  .btn-add { background: var(--red); color: #fff; border: none; font-family: var(--head); font-weight: 700; padding: 8px 15px; cursor: pointer; text-transform: uppercase; border-radius: 2px; width: 100%; }
-  .btn-add:hover { background: var(--red-bright); }
-
-  /* empty state */
-  .empty-state { text-align: center; padding: 60px 20px; color: var(--text-dim); }
-  .empty-state p { font-family: var(--head); font-size: 0.7rem; letter-spacing: 3px; text-transform: uppercase; margin-top: 8px; }
+/* Team modal unit checklist */
+.unit-checklist{max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:2px;background:var(--bg);}
+.unit-checklist::-webkit-scrollbar{width:4px;}
+.unit-checklist::-webkit-scrollbar-thumb{background:var(--border);}
+.check-item{display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid rgba(37,44,56,0.5);cursor:pointer;}
+.check-item:hover{background:var(--bg3);}
+.check-item:last-child{border-bottom:none;}
+.check-item input[type=checkbox]{accent-color:var(--red);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
+.check-item-label{font-family:var(--mono);font-size:0.75rem;color:var(--text);}
+.check-item-sub{font-size:0.6rem;color:var(--text-dim);margin-left:auto;}
 </style>
 </head>
 <body>
 
 <!-- SIDEBAR -->
 <div class="sidebar">
-  <button class="btn-side red" onclick="toggleQRF()" title="Quick Reference Codes">QRF</button>
-  <button class="btn-side dim" onclick="toggleNotepad()" title="Notepad" id="btnNote">NOTE</button>
+  <button class="btn-side red" onclick="toggleQRF()" title="QRF Codes">QRF</button>
+  <button class="btn-side dim" id="btnNote" onclick="toggleNotepad()" title="Notepad">NOTE</button>
 </div>
 
 <!-- APP -->
@@ -215,65 +239,74 @@
   <!-- PANELS -->
   <div class="panels">
 
-    <!-- FLEET (left) -->
+    <!-- FLEET PANEL -->
     <div class="fleet-panel">
+
+      <!-- Panel header -->
       <div class="panel-header">
-        <span class="panel-title">Fleet / Unit Roster</span>
-        <span id="fleetCount" style="font-family:var(--mono);font-size:0.68rem;color:var(--text-dim);">0 units</span>
+        <span class="panel-title">Fleet / Roster</span>
+        <div style="display:flex;gap:5px;align-items:center;">
+          <span id="fleetCount" style="font-family:var(--mono);font-size:0.65rem;color:var(--text-dim);"></span>
+          <button class="btn-ui" onclick="openTeamModal()" style="background:var(--purple);color:#fff;padding:3px 8px;font-size:0.6rem;">+ Team</button>
+        </div>
       </div>
-      <div class="fleet-list" id="fleetList">
-        <div class="empty-state"><p>No units — add below</p></div>
+
+      <!-- Filters -->
+      <div class="fleet-filters">
+        <input class="fleet-search" type="text" id="fleetSearch" placeholder="Search callsign or type…" oninput="renderFleet()">
+        <div class="filter-chips" id="filterChips">
+          <div class="chip active" data-filter="all" onclick="setFilter('all',this)">All</div>
+          <div class="chip" data-filter="available" onclick="setFilter('available',this)">Avail</div>
+          <div class="chip" data-filter="responding" onclick="setFilter('responding',this)">Resp</div>
+          <div class="chip" data-filter="scene" onclick="setFilter('scene',this)">Scene</div>
+          <div class="chip" data-filter="returning" onclick="setFilter('returning',this)">Ret</div>
+          <div class="chip" data-filter="unavailable" onclick="setFilter('unavailable',this)">OOS</div>
+        </div>
+        <div class="filter-chips" id="teamChips"></div>
       </div>
+
+      <!-- List -->
+      <div class="fleet-list" id="fleetList"></div>
+
       <!-- Add unit form -->
       <div class="fleet-add">
         <div class="fleet-add-row">
           <input type="text" id="fCS" placeholder="Callsign" style="text-transform:uppercase;" maxlength="14">
+          <input type="text" id="fType" placeholder="Type (Pumper…)" style="flex:1">
         </div>
         <div class="fleet-add-row">
-          <input type="text" id="fType" placeholder="Type (Pumper, Tanker…)" style="flex:1">
+          <select id="fTeam" style="flex:1">
+            <option value="">No Team</option>
+          </select>
         </div>
         <button class="btn-create-unit" onclick="createUnit()">+ Create Unit</button>
       </div>
     </div>
 
-    <!-- INCIDENT BOARD (right) -->
+    <!-- INCIDENT PANEL -->
     <div class="incident-panel">
       <div class="toolbar" id="toolbar" style="justify-content:space-between;">
         <span class="toolbar-label" id="toolbarLabel">Select or create an incident</span>
-        <div style="display:flex;gap:6px;align-items:center;">
-          <button class="btn-ui" onclick="openEditModal()" style="background:var(--bg3);color:var(--text-dim);border:1px solid var(--border);">Manage Incident</button>
-        </div>
+        <button class="btn-ui" onclick="openEditModal()" style="background:var(--bg3);color:var(--text-dim);border:1px solid var(--border);">Manage Incident</button>
       </div>
-
       <div class="main-content" id="main-content">
         <div id="unit-container">
           <table>
-            <thead>
-              <tr>
-                <th>Callsign</th>
-                <th>Type</th>
-                <th>Status</th>
-                <th>Sector / Location</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
+            <thead><tr><th>Callsign</th><th>Type</th><th>Status</th><th>Sector / Location</th><th>Actions</th></tr></thead>
             <tbody id="unitTable"></tbody>
           </table>
         </div>
       </div>
     </div>
 
-  </div><!-- /panels -->
-</div><!-- /app-container -->
+  </div>
+</div>
 
 <!-- QRF HUD -->
 <div id="qrfHud" class="hud qrf-hud">
   <div class="hud-header" id="qrfHeader">
     <span>QRF / CODES</span>
-    <div style="display:flex;gap:8px;">
-      <button onclick="toggleQRFBody()" title="Minimise">_</button>
-      <button onclick="toggleQRF()">✕</button>
-    </div>
+    <div style="display:flex;gap:8px;"><button onclick="toggleQRFBody()">_</button><button onclick="toggleQRF()">✕</button></div>
   </div>
   <div class="hud-body" id="qrfBody">
     <div class="qrf-section">
@@ -301,17 +334,28 @@
 <div id="notepadHud" class="hud note-hud" style="top:90px;left:380px;">
   <div class="hud-header" id="notepadHeader">
     <span>📝 NOTEPAD</span>
-    <div style="display:flex;gap:8px;">
-      <button onclick="toggleNotepadBody()" title="Minimise">_</button>
-      <button onclick="toggleNotepad()">✕</button>
-    </div>
+    <div style="display:flex;gap:8px;"><button onclick="toggleNotepadBody()">_</button><button onclick="toggleNotepad()">✕</button></div>
   </div>
   <div class="hud-body" id="notepadBody">
     <textarea id="notepadText" placeholder="General notes, reminders, sector comms, freqs…" oninput="saveNotepad()"></textarea>
   </div>
-  <div class="hud-footer">
-    <span>Auto-saved</span>
-    <button onclick="clearNotepad()">Clear</button>
+  <div class="hud-footer"><span>Auto-saved</span><button onclick="clearNotepad()">Clear</button></div>
+</div>
+
+<!-- TEAM MODAL -->
+<div class="modal-wrap" id="teamModal">
+  <div class="modal-box">
+    <h3>Create / Edit Team</h3>
+    <div class="tf"><label>Team Name</label><input type="text" id="teamName" placeholder="e.g. Alpha Group" style="width:100%"></div>
+    <div style="margin-bottom:0.6rem;">
+      <div style="font-size:0.58rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Select Units</div>
+      <div class="unit-checklist" id="teamUnitList"></div>
+    </div>
+    <button onclick="saveTeam()" class="btn-add" style="margin-bottom:8px;">Save Team</button>
+    <div style="display:flex;gap:8px;">
+      <button onclick="closeTeamModal()" style="flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px;cursor:pointer;font-family:var(--head);border-radius:2px;">Cancel</button>
+      <button id="btnDeleteTeam" onclick="deleteEditingTeam()" style="flex:1;display:none;background:var(--red);border:none;color:white;padding:9px;cursor:pointer;font-family:var(--head);font-weight:bold;border-radius:2px;">Delete Team</button>
+    </div>
   </div>
 </div>
 
@@ -334,7 +378,6 @@
   </div>
 </div>
 
-<!-- LOG -->
 <div class="log" id="log"></div>
 
 <script>
@@ -343,9 +386,8 @@
 // ══════════════════════════════════════════
 var store = (function() {
   try {
-    var s = JSON.parse(localStorage.getItem('frnsw_v4') || 'null');
+    var s = JSON.parse(localStorage.getItem('frnsw_v5') || 'null');
     if (s && Array.isArray(s.incidents)) {
-      // normalise IDs to numbers
       s.incidents.forEach(function(i) {
         i.id = Number(i.id);
         if (!Array.isArray(i.units)) i.units = [];
@@ -353,41 +395,43 @@ var store = (function() {
         i.units.forEach(function(u) { u.id = Number(u.id); u.fleetId = Number(u.fleetId); });
       });
       s.activeId = s.activeId ? Number(s.activeId) : null;
-      if (!Array.isArray(s.fleet)) s.fleet = [];
+      if (!Array.isArray(s.fleet))  s.fleet  = [];
+      if (!Array.isArray(s.teams))  s.teams  = [];
       s.fleet.forEach(function(u) { u.id = Number(u.id); if (!u.status) u.status = 'available'; });
+      s.teams.forEach(function(t) { t.id = Number(t.id); if (!Array.isArray(t.unitIds)) t.unitIds = []; t.unitIds = t.unitIds.map(Number); });
       return s;
     }
   } catch(e) {}
-  return { activeId: null, incidents: [], fleet: [] };
+  return { activeId: null, incidents: [], fleet: [], teams: [] };
 })();
 
-var STATUSES = ['responding', 'scene', 'returning', 'available'];
+var STATUSES      = ['responding','scene','returning','available'];
+var FLEET_STATUSES = ['available','responding','scene','returning','unavailable'];
+var currentFilter = 'all';   // status or 'all' or 'team:ID'
+var editingTeamId = null;
 
 // ══════════════════════════════════════════
 //  HELPERS
 // ══════════════════════════════════════════
-function save() { localStorage.setItem('frnsw_v4', JSON.stringify(store)); }
+function save() { localStorage.setItem('frnsw_v5', JSON.stringify(store)); }
 function getActive() { return store.incidents.find(function(i) { return i.id === store.activeId; }) || null; }
 function ts() { return new Date().toLocaleTimeString(); }
-function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-// Is this fleet unit currently assigned to ANY incident?
 function isAssigned(fleetId) {
   fleetId = Number(fleetId);
-  return store.incidents.some(function(i) {
-    return i.units.some(function(u) { return u.fleetId === fleetId; });
-  });
+  return store.incidents.some(function(i) { return i.units.some(function(u) { return u.fleetId === fleetId; }); });
 }
-
-// Which incident is a fleet unit assigned to?
 function assignedTo(fleetId) {
   fleetId = Number(fleetId);
   for (var i = 0; i < store.incidents.length; i++) {
-    if (store.incidents[i].units.some(function(u) { return u.fleetId === fleetId; })) {
-      return store.incidents[i];
-    }
+    if (store.incidents[i].units.some(function(u) { return u.fleetId === fleetId; })) return store.incidents[i];
   }
   return null;
+}
+function getUnitTeam(fleetId) {
+  fleetId = Number(fleetId);
+  return store.teams.find(function(t) { return t.unitIds.indexOf(fleetId) !== -1; }) || null;
 }
 
 // ══════════════════════════════════════════
@@ -395,50 +439,111 @@ function assignedTo(fleetId) {
 // ══════════════════════════════════════════
 function makeDraggable(el, handle) {
   var dragging = false, ox = 0, oy = 0;
-  handle.addEventListener('mousedown', function(e) {
-    dragging = true; ox = el.offsetLeft - e.clientX; oy = el.offsetTop - e.clientY; e.preventDefault();
-  });
-  document.addEventListener('mouseup', function() { dragging = false; });
-  document.addEventListener('mousemove', function(e) {
-    if (!dragging) return;
-    el.style.left = Math.max(0, e.clientX + ox) + 'px';
-    el.style.top  = Math.max(0, e.clientY + oy) + 'px';
-  });
+  handle.addEventListener('mousedown', function(e) { dragging=true; ox=el.offsetLeft-e.clientX; oy=el.offsetTop-e.clientY; e.preventDefault(); });
+  document.addEventListener('mouseup', function() { dragging=false; });
+  document.addEventListener('mousemove', function(e) { if(!dragging)return; el.style.left=Math.max(0,e.clientX+ox)+'px'; el.style.top=Math.max(0,e.clientY+oy)+'px'; });
 }
 makeDraggable(document.getElementById('qrfHud'),     document.getElementById('qrfHeader'));
 makeDraggable(document.getElementById('notepadHud'), document.getElementById('notepadHeader'));
 
 // ══════════════════════════════════════════
-//  QRF
+//  QRF / NOTEPAD
 // ══════════════════════════════════════════
-function toggleQRF() {
-  var h = document.getElementById('qrfHud');
-  h.style.display = (h.style.display === 'flex') ? 'none' : 'flex';
+function toggleQRF() { var h=document.getElementById('qrfHud'); h.style.display=(h.style.display==='flex')?'none':'flex'; }
+function toggleQRFBody() { var b=document.getElementById('qrfBody'); b.style.display=(b.style.display==='none')?'block':'none'; }
+document.getElementById('notepadText').value = localStorage.getItem('frnsw_notepad') || '';
+function toggleNotepad() { var h=document.getElementById('notepadHud'); var open=h.style.display!=='flex'; h.style.display=open?'flex':'none'; document.getElementById('btnNote').classList.toggle('active',open); }
+function toggleNotepadBody() { var b=document.getElementById('notepadBody'); b.style.display=(b.style.display==='none')?'flex':'none'; }
+function saveNotepad() { localStorage.setItem('frnsw_notepad', document.getElementById('notepadText').value); }
+function clearNotepad() { if(!confirm('Clear notepad?'))return; document.getElementById('notepadText').value=''; localStorage.removeItem('frnsw_notepad'); }
+
+// ══════════════════════════════════════════
+//  FILTER
+// ══════════════════════════════════════════
+function setFilter(val, el) {
+  currentFilter = val;
+  document.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  renderFleet();
 }
-function toggleQRFBody() {
-  var b = document.getElementById('qrfBody');
-  b.style.display = (b.style.display === 'none') ? 'block' : 'none';
+
+function renderTeamChips() {
+  var wrap = document.getElementById('teamChips');
+  if (!store.teams.length) { wrap.innerHTML = ''; return; }
+  wrap.innerHTML = store.teams.map(function(t) {
+    var active = (currentFilter === 'team:' + t.id);
+    return '<div class="chip team-chip' + (active ? ' active' : '') + '" onclick="setFilter(\'team:' + t.id + '\',this)">' + esc(t.name) + '</div>';
+  }).join('');
+}
+
+function renderTeamSelect() {
+  var sel = document.getElementById('fTeam');
+  var cur = sel.value;
+  sel.innerHTML = '<option value="">No Team</option>' + store.teams.map(function(t) {
+    return '<option value="' + t.id + '"' + (cur==t.id?' selected':'') + '>' + esc(t.name) + '</option>';
+  }).join('');
 }
 
 // ══════════════════════════════════════════
-//  NOTEPAD
+//  TEAMS
 // ══════════════════════════════════════════
-document.getElementById('notepadText').value = localStorage.getItem('frnsw_notepad') || '';
-function toggleNotepad() {
-  var h = document.getElementById('notepadHud');
-  var open = h.style.display !== 'flex';
-  h.style.display = open ? 'flex' : 'none';
-  document.getElementById('btnNote').classList.toggle('active', open);
+function openTeamModal(editId) {
+  editingTeamId = editId ? Number(editId) : null;
+  var t = editingTeamId ? store.teams.find(function(x){return x.id===editingTeamId;}) : null;
+  document.getElementById('teamName').value = t ? t.name : '';
+  document.getElementById('btnDeleteTeam').style.display = t ? 'block' : 'none';
+
+  var ul = document.getElementById('teamUnitList');
+  if (!store.fleet.length) {
+    ul.innerHTML = '<div style="padding:12px;font-size:0.72rem;color:var(--text-dim);text-align:center;">No units in fleet yet</div>';
+  } else {
+    ul.innerHTML = store.fleet.map(function(u) {
+      var checked = t ? (t.unitIds.indexOf(u.id) !== -1) : false;
+      return '<label class="check-item">'
+        + '<input type="checkbox" value="' + u.id + '"' + (checked ? ' checked' : '') + '>'
+        + '<span class="check-item-label">' + esc(u.cs) + '</span>'
+        + '<span class="check-item-sub">' + esc(u.type) + '</span>'
+        + '</label>';
+    }).join('');
+  }
+  document.getElementById('teamModal').style.display = 'flex';
 }
-function toggleNotepadBody() {
-  var b = document.getElementById('notepadBody');
-  b.style.display = (b.style.display === 'none') ? 'flex' : 'none';
+
+function closeTeamModal() { document.getElementById('teamModal').style.display = 'none'; editingTeamId = null; }
+
+function saveTeam() {
+  var name = document.getElementById('teamName').value.trim();
+  if (!name) { document.getElementById('teamName').focus(); return; }
+  var checked = Array.from(document.querySelectorAll('#teamUnitList input[type=checkbox]:checked')).map(function(cb){ return Number(cb.value); });
+
+  // Remove these units from any OTHER team first
+  store.teams.forEach(function(t) {
+    if (editingTeamId && t.id === editingTeamId) return;
+    t.unitIds = t.unitIds.filter(function(id) { return checked.indexOf(id) === -1; });
+  });
+
+  if (editingTeamId) {
+    var t = store.teams.find(function(x){return x.id===editingTeamId;});
+    if (t) { t.name = name; t.unitIds = checked; }
+  } else {
+    store.teams.push({ id: Date.now(), name: name, unitIds: checked });
+  }
+  // Update fleet units' teamId field for quick lookup
+  store.fleet.forEach(function(u) {
+    var team = store.teams.find(function(t){return t.unitIds.indexOf(u.id)!==-1;});
+    u.teamId = team ? team.id : null;
+  });
+  save(); closeTeamModal(); renderTeamChips(); renderTeamSelect(); renderFleet();
 }
-function saveNotepad() { localStorage.setItem('frnsw_notepad', document.getElementById('notepadText').value); }
-function clearNotepad() {
-  if (!confirm('Clear notepad?')) return;
-  document.getElementById('notepadText').value = '';
-  localStorage.removeItem('frnsw_notepad');
+
+function deleteEditingTeam() {
+  if (!editingTeamId) return;
+  var t = store.teams.find(function(x){return x.id===editingTeamId;});
+  if (!t || !confirm('Delete team "' + t.name + '"? Units will not be deleted.')) return;
+  store.teams = store.teams.filter(function(x){return x.id!==editingTeamId;});
+  store.fleet.forEach(function(u){ if(u.teamId===editingTeamId) u.teamId=null; });
+  if (currentFilter === 'team:' + editingTeamId) currentFilter = 'all';
+  save(); closeTeamModal(); renderTeamChips(); renderTeamSelect(); renderFleet();
 }
 
 // ══════════════════════════════════════════
@@ -447,115 +552,182 @@ function clearNotepad() {
 function createUnit() {
   var cs = document.getElementById('fCS').value.trim().toUpperCase();
   if (!cs) { document.getElementById('fCS').focus(); return; }
-  if (store.fleet.find(function(u) { return u.cs === cs; })) {
-    alert('A unit with callsign ' + cs + ' already exists in the fleet.');
-    return;
-  }
-  var unit = {
-    id:     Date.now(),
-    cs:     cs,
-    type:   document.getElementById('fType').value.trim().toUpperCase() || 'APPLIANCE',
-    status: 'available'
-  };
+  if (store.fleet.find(function(u){return u.cs===cs;})) { alert('Callsign ' + cs + ' already exists.'); return; }
+  var teamId = document.getElementById('fTeam').value ? Number(document.getElementById('fTeam').value) : null;
+  var unit = { id: Date.now(), cs: cs, type: document.getElementById('fType').value.trim().toUpperCase() || 'APPLIANCE', status: 'available', teamId: teamId };
   store.fleet.push(unit);
+  // add to team's unitIds
+  if (teamId) {
+    var t = store.teams.find(function(x){return x.id===teamId;});
+    if (t) t.unitIds.push(unit.id);
+  }
   save();
-  document.getElementById('fCS').value   = '';
-  document.getElementById('fType').value = '';
-  document.getElementById('fCS').focus();
-  renderFleet();
+  document.getElementById('fCS').value = ''; document.getElementById('fType').value = '';
+  renderTeamChips(); renderTeamSelect(); renderFleet();
 }
 
 function deleteFleetUnit(id) {
   id = Number(id);
-  var unit = store.fleet.find(function(u) { return u.id === id; });
+  var unit = store.fleet.find(function(u){return u.id===id;});
   if (!unit) return;
-  if (isAssigned(id)) {
-    alert(unit.cs + ' is currently assigned to an incident. Remove it from the incident first.');
-    return;
-  }
+  if (isAssigned(id)) { alert(unit.cs + ' is assigned to an incident. Release it first.'); return; }
   if (!confirm('Remove ' + unit.cs + ' from fleet?')) return;
-  store.fleet = store.fleet.filter(function(u) { return u.id !== id; });
-  save();
-  renderFleet();
+  store.fleet = store.fleet.filter(function(u){return u.id!==id;});
+  store.teams.forEach(function(t){ t.unitIds = t.unitIds.filter(function(x){return x!==id;}); });
+  save(); renderTeamChips(); renderTeamSelect(); renderFleet();
+}
+
+function setFleetStatus(id, status) {
+  id = Number(id);
+  var unit = store.fleet.find(function(u){return u.id===id;});
+  if (!unit) return;
+  unit.status = status; save(); renderFleet();
 }
 
 function assignUnitToIncident(fleetId) {
   fleetId = Number(fleetId);
   var inc = getActive();
   if (!inc) { alert('Select or create an incident first.'); return; }
-  if (inc.status === 'suspended') { alert('This incident is suspended.'); return; }
-  var fu = store.fleet.find(function(u) { return u.id === fleetId; });
+  if (inc.status === 'suspended') { alert('Incident is suspended.'); return; }
+  var fu = store.fleet.find(function(u){return u.id===fleetId;});
   if (!fu) return;
-  if (isAssigned(fleetId)) {
-    var existing = assignedTo(fleetId);
-    alert(fu.cs + ' is already assigned to ' + (existing ? existing.name : 'another incident') + '.');
-    return;
-  }
-  var unit = {
-    id:       Date.now(),
-    fleetId:  fleetId,
-    cs:       fu.cs,
-    type:     fu.type,
-    status:   'responding',
-    location: '',
-    isCmd:    false,
-    ts:       ts()
-  };
+  if (isAssigned(fleetId)) { var ex = assignedTo(fleetId); alert(fu.cs + ' already assigned to ' + (ex?ex.name:'another incident') + '.'); return; }
+  var unit = { id: Date.now(), fleetId: fleetId, cs: fu.cs, type: fu.type, status: 'responding', location: '', isCmd: false, ts: ts() };
   inc.units.push(unit);
   logMsg(fu.cs + ' assigned to ' + inc.name);
-  save();
-  render();
+  save(); render();
 }
 
-function setFleetStatus(id, status) {
-  id = Number(id);
-  var unit = store.fleet.find(function(u) { return u.id === id; });
-  if (!unit) return;
-  unit.status = status;
-  save();
-  renderFleet();
+function assignTeamToIncident(teamId) {
+  teamId = Number(teamId);
+  var inc = getActive();
+  if (!inc) { alert('Select or create an incident first.'); return; }
+  if (inc.status === 'suspended') { alert('Incident is suspended.'); return; }
+  var team = store.teams.find(function(t){return t.id===teamId;});
+  if (!team) return;
+  var assigned = 0, skipped = [];
+  team.unitIds.forEach(function(fid) {
+    var fu = store.fleet.find(function(u){return u.id===fid;});
+    if (!fu) return;
+    if (isAssigned(fid)) { skipped.push(fu.cs); return; }
+    var unit = { id: Date.now(), fleetId: fid, cs: fu.cs, type: fu.type, status: 'responding', location: '', isCmd: false, ts: ts() };
+    inc.units.push(unit);
+    assigned++;
+  });
+  if (assigned) logMsg('Team ' + team.name + ' (' + assigned + ' units) assigned to ' + inc.name);
+  if (skipped.length) logMsg('Skipped (already assigned): ' + skipped.join(', '));
+  save(); render();
 }
 
 function renderFleet() {
+  renderTeamChips();
+  renderTeamSelect();
+
   var list = document.getElementById('fleetList');
-  document.getElementById('fleetCount').textContent = store.fleet.length + ' unit' + (store.fleet.length !== 1 ? 's' : '');
+  var search = document.getElementById('fleetSearch').value.toLowerCase().trim();
+  document.getElementById('fleetCount').textContent = store.fleet.length + ' unit' + (store.fleet.length!==1?'s':'');
 
   if (!store.fleet.length) {
     list.innerHTML = '<div class="empty-state"><p>No units — add below</p></div>';
     return;
   }
 
-  var FLEET_STATUSES = ['available', 'responding', 'scene', 'returning', 'unavailable'];
-
   var inc = getActive();
-  list.innerHTML = store.fleet.map(function(u) {
-    var busy = isAssigned(u.id);
-    var whoInc = busy ? assignedTo(u.id) : null;
-    var canAssign = !busy && inc && inc.status !== 'suspended';
-    var st = u.status || 'available';
 
-    var statusBtns = FLEET_STATUSES.map(function(s) {
-      var activeClass = (st === s) ? ' fsbtn-' + s : '';
-      return '<button class="fsbtn' + activeClass + '" onclick="event.stopPropagation();setFleetStatus(' + u.id + ',\'' + s + '\')">' + s.toUpperCase() + '</button>';
-    }).join('');
+  // Determine which units pass filter
+  function unitPasses(u) {
+    // search
+    if (search && u.cs.toLowerCase().indexOf(search) === -1 && u.type.toLowerCase().indexOf(search) === -1) return false;
+    // status/team filter
+    if (currentFilter === 'all') return true;
+    if (currentFilter.indexOf('team:') === 0) {
+      var tid = Number(currentFilter.split(':')[1]);
+      return u.teamId === tid;
+    }
+    return u.status === currentFilter;
+  }
 
-    return '<div class="fleet-item' + (busy ? ' assigned' : '') + '">'
-      + '<div style="flex:1;min-width:0;">'
-      +   '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">'
-      +     '<div class="fleet-cs">' + esc(u.cs) + '</div>'
-      +     '<div class="fleet-type">' + esc(u.type) + '</div>'
-      +     (whoInc ? '<span style="font-size:0.52rem;color:var(--amber);letter-spacing:1px;">[' + esc(whoInc.name) + ']</span>' : '')
-      +   '</div>'
-      +   '<div class="fleet-status-row">' + statusBtns + '</div>'
-      + '</div>'
-      + '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;margin-left:6px;">'
-      +   '<button class="btn-assign" onclick="assignUnitToIncident(' + u.id + ')" ' + (canAssign ? '' : 'disabled') + '>'
-      +     (busy ? 'IN USE' : 'ASSIGN')
-      +   '</button>'
-      +   '<button class="btn-del-unit" onclick="deleteFleetUnit(' + u.id + ')" title="Remove from fleet">✕</button>'
-      + '</div>'
-      + '</div>';
+  // Group by team when showing all or team filter
+  var showGrouped = (currentFilter === 'all' || currentFilter.indexOf('team:') === 0) && !search;
+
+  var html = '';
+
+  if (showGrouped && store.teams.length) {
+    // Units with teams
+    store.teams.forEach(function(t) {
+      if (currentFilter.indexOf('team:') === 0 && Number(currentFilter.split(':')[1]) !== t.id) return;
+      var members = store.fleet.filter(function(u){ return u.teamId===t.id && unitPasses(u); });
+      if (!members.length && currentFilter==='all') {
+        // still show header if team has members (just all filtered out by search)
+        var allMembers = store.fleet.filter(function(u){return u.teamId===t.id;});
+        if (!allMembers.length) return; // truly empty team
+      }
+      var allBusy = members.length > 0 && members.every(function(u){return isAssigned(u.id);});
+      var canAssignTeam = inc && inc.status !== 'suspended' && members.some(function(u){return !isAssigned(u.id);});
+      html += '<div class="team-group-header" onclick="openTeamModal(' + t.id + ')">'
+        + '<div class="team-group-label"><div class="team-dot"></div><span class="team-name-text">' + esc(t.name) + '</span><span class="team-count">' + members.length + ' unit' + (members.length!==1?'s':'') + '</span></div>'
+        + '<div class="team-actions" onclick="event.stopPropagation()">'
+        +   '<button class="btn-assign-team" onclick="assignTeamToIncident(' + t.id + ')" ' + (canAssignTeam?'':'disabled') + '>Assign All</button>'
+        +   '<button class="btn-del-team" onclick="deleteTeamDirect(' + t.id + ')">✕</button>'
+        + '</div>'
+        + '</div>';
+      members.forEach(function(u) { html += renderFleetItem(u, inc); });
+    });
+
+    // Ungrouped units
+    var ungrouped = store.fleet.filter(function(u){ return !u.teamId && unitPasses(u); });
+    if (ungrouped.length) {
+      if (store.teams.length) {
+        html += '<div style="padding:5px 10px 3px;font-family:var(--head);font-size:0.58rem;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);border-top:1px solid var(--border);border-bottom:1px solid rgba(37,44,56,0.4);">Ungrouped</div>';
+      }
+      ungrouped.forEach(function(u) { html += renderFleetItem(u, inc); });
+    }
+  } else {
+    // Flat list
+    var filtered = store.fleet.filter(unitPasses);
+    if (!filtered.length) {
+      html = '<div class="empty-state"><p>No units match filter</p></div>';
+    } else {
+      filtered.forEach(function(u) { html += renderFleetItem(u, inc); });
+    }
+  }
+
+  list.innerHTML = html || '<div class="empty-state"><p>No units match filter</p></div>';
+}
+
+function renderFleetItem(u, inc) {
+  var busy     = isAssigned(u.id);
+  var whoInc   = busy ? assignedTo(u.id) : null;
+  var canAssign = !busy && inc && inc.status !== 'suspended';
+  var st       = u.status || 'available';
+  var statusBtns = FLEET_STATUSES.map(function(s) {
+    return '<button class="fsbtn' + (st===s?' fsbtn-'+s:'') + '" onclick="event.stopPropagation();setFleetStatus(' + u.id + ',\'' + s + '\')">' + s.substring(0,4).toUpperCase() + '</button>';
   }).join('');
+  return '<div class="fleet-item' + (busy?' assigned':'') + '">'
+    + '<div style="flex:1;min-width:0;">'
+    +   '<div style="display:flex;align-items:center;gap:5px;margin-bottom:2px;flex-wrap:wrap;">'
+    +     '<span class="fleet-cs">' + esc(u.cs) + '</span>'
+    +     '<span class="fleet-type">' + esc(u.type) + '</span>'
+    +     (whoInc ? '<span style="font-size:0.5rem;color:var(--amber);letter-spacing:1px;">[' + esc(whoInc.name) + ']</span>' : '')
+    +   '</div>'
+    +   '<div class="fleet-status-row">' + statusBtns + '</div>'
+    + '</div>'
+    + '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0;margin-left:5px;">'
+    +   '<button class="btn-assign" onclick="assignUnitToIncident(' + u.id + ')" ' + (canAssign?'':'disabled') + '>' + (busy?'IN USE':'ASSIGN') + '</button>'
+    +   '<button class="btn-del-unit" onclick="deleteFleetUnit(' + u.id + ')" title="Remove">✕</button>'
+    + '</div>'
+    + '</div>';
+}
+
+function deleteTeamDirect(id) {
+  id = Number(id);
+  var t = store.teams.find(function(x){return x.id===id;});
+  if (!t || !confirm('Delete team "' + t.name + '"? Units will not be deleted.')) return;
+  store.teams = store.teams.filter(function(x){return x.id!==id;});
+  store.fleet.forEach(function(u){if(u.teamId===id) u.teamId=null;});
+  store.teams.forEach(function(t){t.unitIds=t.unitIds.filter(function(x){return x!==id;});});
+  if (currentFilter==='team:'+id) currentFilter='all';
+  save(); renderTeamChips(); renderTeamSelect(); renderFleet();
 }
 
 // ══════════════════════════════════════════
@@ -563,207 +735,113 @@ function renderFleet() {
 // ══════════════════════════════════════════
 function createNewIncident() {
   var name = prompt('Enter Incident Identifier (e.g. P25-12345):');
-  if (!name || !name.trim()) return;
-  var inc = {
-    id:     Date.now(),
-    name:   name.trim().toUpperCase(),
-    units:  [],
-    logs:   [{ ts: ts(), msg: 'Incident created' }],
-    status: 'active'
-  };
-  store.incidents.push(inc);
-  store.activeId = inc.id;
-  save();
-  render();
+  if (!name||!name.trim()) return;
+  var inc = { id: Date.now(), name: name.trim().toUpperCase(), units: [], logs: [{ ts: ts(), msg: 'Incident created' }], status: 'active' };
+  store.incidents.push(inc); store.activeId = inc.id; save(); render();
 }
-
-function switchIncident(id) {
-  store.activeId = Number(id);
-  save();
-  render();
-}
-
+function switchIncident(id) { store.activeId = Number(id); save(); render(); }
 function deleteIncidentById(id) {
   id = Number(id);
-  var inc = store.incidents.find(function(i) { return i.id === id; });
-  if (!inc) return;
-  if (!confirm('Delete incident ' + inc.name + ' and release all ' + inc.units.length + ' unit(s)?\nThis cannot be undone.')) return;
-  store.incidents = store.incidents.filter(function(i) { return i.id !== id; });
-  if (store.activeId === id) {
-    store.activeId = store.incidents.length ? store.incidents[0].id : null;
-  }
-  save();
-  render();
+  var inc = store.incidents.find(function(i){return i.id===id;});
+  if (!inc||!confirm('Delete '+inc.name+' and release '+inc.units.length+' unit(s)?')) return;
+  store.incidents = store.incidents.filter(function(i){return i.id!==id;});
+  if (store.activeId===id) store.activeId = store.incidents.length?store.incidents[0].id:null;
+  save(); render();
 }
-
-function openEditModal() {
-  var inc = getActive();
-  if (!inc) { alert('No active incident selected.'); return; }
-  document.getElementById('editName').value   = inc.name;
-  document.getElementById('editStatus').value = inc.status || 'active';
-  document.getElementById('editModal').style.display = 'flex';
-}
-function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
-function saveEdit() {
-  var inc = getActive(); if (!inc) return;
-  var n = document.getElementById('editName').value.trim().toUpperCase();
-  var s = document.getElementById('editStatus').value;
-  if (!n) return;
-  inc.name = n; inc.status = s;
-  logMsg('Incident updated: ' + n + ' — ' + s.toUpperCase());
-  save(); render(); closeEditModal();
-}
-function deleteCurrentIncident() { closeEditModal(); if (store.activeId) deleteIncidentById(store.activeId); }
+function openEditModal() { var inc=getActive(); if(!inc){alert('No active incident.');return;} document.getElementById('editName').value=inc.name; document.getElementById('editStatus').value=inc.status||'active'; document.getElementById('editModal').style.display='flex'; }
+function closeEditModal() { document.getElementById('editModal').style.display='none'; }
+function saveEdit() { var inc=getActive(); if(!inc)return; var n=document.getElementById('editName').value.trim().toUpperCase(); var s=document.getElementById('editStatus').value; if(!n)return; inc.name=n; inc.status=s; logMsg('Incident updated: '+n+' — '+s.toUpperCase()); save(); render(); closeEditModal(); }
+function deleteCurrentIncident() { closeEditModal(); if(store.activeId) deleteIncidentById(store.activeId); }
 
 // ══════════════════════════════════════════
 //  INCIDENT UNITS
 // ══════════════════════════════════════════
 function setStatus(unitId, status) {
   unitId = Number(unitId);
-  var inc = getActive(); if (!inc || inc.status === 'suspended') return;
-  var unit = inc.units.find(function(u) { return u.id === unitId; }); if (!unit) return;
-  var old = unit.status;
-  unit.status = status; unit.ts = ts();
-  logMsg(unit.cs + ': ' + old.toUpperCase() + ' → ' + status.toUpperCase());
-  save(); render();
+  var inc=getActive(); if(!inc||inc.status==='suspended') return;
+  var unit=inc.units.find(function(u){return u.id===unitId;}); if(!unit) return;
+  var old=unit.status; unit.status=status; unit.ts=ts();
+  logMsg(unit.cs+': '+old.toUpperCase()+' → '+status.toUpperCase()); save(); render();
 }
-
 function toggleCommand(unitId) {
-  unitId = Number(unitId);
-  var inc = getActive(); if (!inc || inc.status === 'suspended') return;
-  var unit = inc.units.find(function(u) { return u.id === unitId; }); if (!unit) return;
-  unit.isCmd = !unit.isCmd;
-  logMsg(unit.cs + ' command role ' + (unit.isCmd ? 'ASSIGNED' : 'REMOVED'));
-  save(); render();
+  unitId=Number(unitId);
+  var inc=getActive(); if(!inc||inc.status==='suspended') return;
+  var unit=inc.units.find(function(u){return u.id===unitId;}); if(!unit) return;
+  unit.isCmd=!unit.isCmd; logMsg(unit.cs+' command role '+(unit.isCmd?'ASSIGNED':'REMOVED')); save(); render();
 }
-
 function updateLocation(unitId, val) {
-  unitId = Number(unitId);
-  var inc = getActive(); if (!inc) return;
-  var unit = inc.units.find(function(u) { return u.id === unitId; }); if (!unit) return;
-  unit.location = val; save();
+  unitId=Number(unitId);
+  var inc=getActive(); if(!inc) return;
+  var unit=inc.units.find(function(u){return u.id===unitId;}); if(!unit) return;
+  unit.location=val; save();
 }
-
 function removeUnit(unitId) {
-  unitId = Number(unitId);
-  var inc = getActive(); if (!inc) return;
-  var unit = inc.units.find(function(u) { return u.id === unitId; }); if (!unit) return;
-  if (!confirm('Release ' + unit.cs + ' from ' + inc.name + '?')) return;
-  inc.units = inc.units.filter(function(u) { return u.id !== unitId; });
-  logMsg(unit.cs + ' released from incident');
-  save(); render();
+  unitId=Number(unitId);
+  var inc=getActive(); if(!inc) return;
+  var unit=inc.units.find(function(u){return u.id===unitId;}); if(!unit) return;
+  if(!confirm('Release '+unit.cs+' from '+inc.name+'?')) return;
+  inc.units=inc.units.filter(function(u){return u.id!==unitId;});
+  logMsg(unit.cs+' released'); save(); render();
 }
-
-function logMsg(msg) {
-  var inc = getActive(); if (!inc) return;
-  inc.logs.unshift({ ts: ts(), msg: msg });
-}
+function logMsg(msg) { var inc=getActive(); if(!inc) return; inc.logs.unshift({ts:ts(),msg:msg}); }
 
 // ══════════════════════════════════════════
 //  RENDER
 // ══════════════════════════════════════════
 function renderTabs() {
-  var strip = document.getElementById('incTabStrip');
-  if (!store.incidents.length) {
-    strip.innerHTML = '<div style="font-family:var(--head);font-size:0.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);display:flex;align-items:center;padding:0 10px;">No incidents — click + New Incident</div>';
-    return;
-  }
-  strip.innerHTML = store.incidents.map(function(i) {
-    var active = (i.id === store.activeId);
-    var susp   = (i.status === 'suspended');
-    var cmd    = i.units.find(function(u) { return u.isCmd; });
-    return '<div class="inc-tab' + (active ? ' active' : '') + '" onclick="switchIncident(' + i.id + ')">'
-      + '<button class="inc-tab-close" onclick="event.stopPropagation();deleteIncidentById(' + i.id + ')">✕</button>'
-      + '<div class="inc-tab-name">' + esc(i.name) + '</div>'
-      + '<div class="inc-tab-meta">'
-      +   '<span class="inc-tab-dot' + (susp ? ' suspended' : '') + '"></span>'
-      +   '<span>' + (susp ? 'SUSPENDED' : 'ACTIVE') + '</span>'
-      +   '&nbsp;<span style="font-family:var(--mono);font-size:0.55rem;">' + i.units.length + 'u</span>'
-      + '</div>'
-      + (cmd ? '<div class="inc-tab-ic">IC: ' + esc(cmd.cs) + '</div>' : '')
-      + '</div>';
+  var strip=document.getElementById('incTabStrip');
+  if (!store.incidents.length) { strip.innerHTML='<div style="font-family:var(--head);font-size:0.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);display:flex;align-items:center;padding:0 10px;">No incidents — click + New Incident</div>'; return; }
+  strip.innerHTML=store.incidents.map(function(i) {
+    var active=(i.id===store.activeId); var susp=(i.status==='suspended'); var cmd=i.units.find(function(u){return u.isCmd;});
+    return '<div class="inc-tab'+(active?' active':'')+'" onclick="switchIncident('+i.id+')">'
+      +'<button class="inc-tab-close" onclick="event.stopPropagation();deleteIncidentById('+i.id+')">✕</button>'
+      +'<div class="inc-tab-name">'+esc(i.name)+'</div>'
+      +'<div class="inc-tab-meta"><span class="inc-tab-dot'+(susp?' suspended':'')+'"></span><span>'+(susp?'SUSPENDED':'ACTIVE')+'</span>&nbsp;<span style="font-family:var(--mono);font-size:0.55rem;">'+i.units.length+'u</span></div>'
+      +(cmd?'<div class="inc-tab-ic">IC: '+esc(cmd.cs)+'</div>':'')
+      +'</div>';
   }).join('');
 }
 
 function render() {
-  renderTabs();
-  renderFleet();
-
-  var inc       = getActive();
-  var main      = document.getElementById('main-content');
-  var container = document.getElementById('unit-container');
-  var toolbar   = document.getElementById('toolbar');
-  var label     = document.getElementById('toolbarLabel');
-
+  renderTabs(); renderFleet();
+  var inc=getActive(); var main=document.getElementById('main-content'); var container=document.getElementById('unit-container'); var label=document.getElementById('toolbarLabel');
   if (!inc) {
-    document.getElementById('unitTable').innerHTML =
-      '<tr><td colspan="5" style="text-align:center;padding:60px;color:var(--text-dim);font-family:var(--head);letter-spacing:2px;text-transform:uppercase;font-size:0.7rem;">No active incident — create one above or select a tab</td></tr>';
-    ['responding','scene','returning','total'].forEach(function(s) {
-      document.getElementById('stat-' + s).textContent = '0';
-    });
-    document.getElementById('log').innerHTML = '';
-    label.textContent = 'No incident selected';
-    return;
+    document.getElementById('unitTable').innerHTML='<tr><td colspan="5" style="text-align:center;padding:60px;color:var(--text-dim);font-family:var(--head);letter-spacing:2px;text-transform:uppercase;font-size:0.7rem;">No active incident — create one above</td></tr>';
+    ['responding','scene','returning','total'].forEach(function(s){document.getElementById('stat-'+s).textContent='0';});
+    document.getElementById('log').innerHTML=''; label.textContent='No incident selected'; return;
   }
-
-  label.textContent = inc.name + (inc.status === 'suspended' ? '  [SUSPENDED]' : '');
-
-  var susp = (inc.status === 'suspended');
-  container.classList.toggle('incident-suspended', susp);
-
-  var oldOv = main.querySelector('.suspended-overlay');
-  if (oldOv) oldOv.remove();
-  if (susp) {
-    var ov = document.createElement('div');
-    ov.className = 'suspended-overlay';
-    ov.innerHTML = '<div class="suspended-msg">Operations Paused — Incident Suspended</div>';
-    main.appendChild(ov);
-  }
-
-  document.getElementById('stat-total').textContent = inc.units.length;
-  ['responding','scene','returning'].forEach(function(s) {
-    document.getElementById('stat-' + s).textContent =
-      inc.units.filter(function(u) { return u.status === s; }).length;
-  });
-
+  label.textContent=inc.name+(inc.status==='suspended'?'  [SUSPENDED]':'');
+  var susp=(inc.status==='suspended');
+  container.classList.toggle('incident-suspended',susp);
+  var oldOv=main.querySelector('.suspended-overlay'); if(oldOv) oldOv.remove();
+  if (susp) { var ov=document.createElement('div'); ov.className='suspended-overlay'; ov.innerHTML='<div class="suspended-msg">Operations Paused — Incident Suspended</div>'; main.appendChild(ov); }
+  document.getElementById('stat-total').textContent=inc.units.length;
+  ['responding','scene','returning'].forEach(function(s){document.getElementById('stat-'+s).textContent=inc.units.filter(function(u){return u.status===s;}).length;});
   if (!inc.units.length) {
-    document.getElementById('unitTable').innerHTML =
-      '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-dim);font-family:var(--head);letter-spacing:2px;text-transform:uppercase;font-size:0.7rem;">No units assigned — use the fleet panel to assign units</td></tr>';
+    document.getElementById('unitTable').innerHTML='<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-dim);font-family:var(--head);letter-spacing:2px;text-transform:uppercase;font-size:0.7rem;">No units assigned — use the fleet panel</td></tr>';
   } else {
-    var sorted = inc.units.slice().sort(function(a,b) { return (b.isCmd ? 1 : 0) - (a.isCmd ? 1 : 0); });
-    document.getElementById('unitTable').innerHTML = sorted.map(function(u) {
-      var btns = STATUSES.map(function(s) {
-        var col = s==='responding' ? 'amber' : s==='scene' ? 'red-bright' : s==='returning' ? 'blue' : 'green';
-        return '<button class="sbtn' + (u.status===s ? ' active' : '') + '" style="--color:var(--' + col + ')" onclick="setStatus(' + u.id + ',\'' + s + '\')">' + s.toUpperCase() + '</button>';
-      }).join('');
-      var loc = esc(u.location || '');
-      return '<tr class="' + (u.isCmd ? 'command-row' : '') + '">'
-        + '<td><div style="font-family:var(--mono);font-weight:bold;">' + (u.isCmd ? '<span class="cmd-badge">COMMAND</span>' : '') + esc(u.cs) + '</div></td>'
-        + '<td><span style="font-size:0.72rem;color:var(--blue);font-weight:bold;">' + esc(u.type || 'APPLIANCE') + '</span></td>'
-        + '<td><div style="display:flex;gap:3px;flex-wrap:wrap;">' + btns + '</div></td>'
-        + '<td><input style="width:100%;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:0.78rem;padding:3px;outline:none;" placeholder="Sector / Location" value="' + loc + '" onchange="updateLocation(' + u.id + ',this.value)"></td>'
-        + '<td style="white-space:nowrap;">'
-        +   '<button class="btn-cmd ' + (u.isCmd ? 'is-cmd' : '') + '" onclick="toggleCommand(' + u.id + ')">CMD</button> '
-        +   '<button class="btn-cmd" style="color:var(--red-bright);" onclick="removeUnit(' + u.id + ')">✕</button>'
-        + '</td>'
-        + '</tr>';
+    var sorted=inc.units.slice().sort(function(a,b){return (b.isCmd?1:0)-(a.isCmd?1:0);});
+    document.getElementById('unitTable').innerHTML=sorted.map(function(u) {
+      var btns=STATUSES.map(function(s){var col=s==='responding'?'amber':s==='scene'?'red-bright':s==='returning'?'blue':'green';return '<button class="sbtn'+(u.status===s?' active':'')+'" style="--color:var(--'+col+')" onclick="setStatus('+u.id+',\''+s+'\')">'+s.toUpperCase()+'</button>';}).join('');
+      var loc=esc(u.location||'');
+      return '<tr class="'+(u.isCmd?'command-row':'')+'">'
+        +'<td><div style="font-family:var(--mono);font-weight:bold;">'+(u.isCmd?'<span class="cmd-badge">COMMAND</span>':'')+esc(u.cs)+'</div></td>'
+        +'<td><span style="font-size:0.72rem;color:var(--blue);font-weight:bold;">'+esc(u.type||'APPLIANCE')+'</span></td>'
+        +'<td><div style="display:flex;gap:3px;flex-wrap:wrap;">'+btns+'</div></td>'
+        +'<td><input style="width:100%;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:0.78rem;padding:3px;outline:none;" placeholder="Sector / Location" value="'+loc+'" onchange="updateLocation('+u.id+',this.value)"></td>'
+        +'<td style="white-space:nowrap;"><button class="btn-cmd '+(u.isCmd?'is-cmd':'')+'" onclick="toggleCommand('+u.id+')">CMD</button> <button class="btn-cmd" style="color:var(--red-bright);" onclick="removeUnit('+u.id+')">✕</button></td>'
+        +'</tr>';
     }).join('');
   }
-
-  document.getElementById('log').innerHTML = inc.logs.map(function(l) {
-    return '<div class="log-entry"><span class="log-ts">[' + l.ts + ']</span> ' + l.msg + '</div>';
-  }).join('');
+  document.getElementById('log').innerHTML=inc.logs.map(function(l){return '<div class="log-entry"><span class="log-ts">['+l.ts+']</span> '+l.msg+'</div>';}).join('');
 }
 
 // ══════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════
-document.getElementById('fCS').addEventListener('keydown', function(e) { if (e.key === 'Enter') createUnit(); });
-setInterval(function() { document.getElementById('clock').textContent = new Date().toLocaleTimeString(); }, 1000);
-
-if (!store.activeId && store.incidents.length) {
-  store.activeId = store.incidents[0].id;
-}
+document.getElementById('fCS').addEventListener('keydown', function(e){if(e.key==='Enter') createUnit();});
+setInterval(function(){document.getElementById('clock').textContent=new Date().toLocaleTimeString();},1000);
+if (!store.activeId && store.incidents.length) store.activeId=store.incidents[0].id;
 render();
 </script>
 </body>
